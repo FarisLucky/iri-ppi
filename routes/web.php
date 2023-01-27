@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\InsidenController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,3 +22,6 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::get('insiden/data', [InsidenController::class, 'data'])->name('insiden.data');
+Route::get('insiden', [InsidenController::class, 'index'])->name('insiden.index');
