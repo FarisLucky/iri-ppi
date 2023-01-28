@@ -3,10 +3,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class Insiden extends Model
 {
+    const VERIFIED = 1;
+
     protected $table = 'ppi';
+
+    protected $fillable = [
+        'IDO',
+        'ISK',
+        'LMINFUS',
+        'LMKTT',
+        'LMRAWAT',
+        'PLEBITIS',
+        'VERIFIED',
+        'UPDATED_AT',
+    ];
 
     public function scopeSelectInsiden($query)
     {
@@ -19,11 +34,16 @@ class Insiden extends Model
             'ppi.ISK AS isk',
             'ppi.IDO AS ido',
             'ppi.MR AS mr',
+            'ppi.ID AS id',
             'ppi.RUANGAN AS ruangan',
         );
     }
 
-    public function scopePasien($query)
+    protected $casts = [
+        'tanggal' => 'date'
+    ];
+
+    public function scopeJoinPasien($query)
     {
         return $query->join('m_pasien', 'm_pasien.MR', '=', 'ppi.MR')
             ->addSelect('m_pasien.NAMA as nama');

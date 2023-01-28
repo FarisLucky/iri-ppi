@@ -25,3 +25,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Route::get('insiden/data', [InsidenController::class, 'data'])->name('insiden.data');
 Route::get('insiden', [InsidenController::class, 'index'])->name('insiden.index');
+Route::get('insiden/{id}', [InsidenController::class, 'edit'])->name('insiden.edit');
+Route::put('insiden/{id?}', [InsidenController::class, 'update'])->name('insiden.update');
+Route::post('insiden/verif', [InsidenController::class, 'verif'])->name('insiden.verif');
+Route::delete('insiden/{id}', [InsidenController::class, 'delete'])->name('insiden.delete');
