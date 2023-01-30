@@ -24,27 +24,29 @@
                     <div class="col-md-6">
                         <div class="card">
                             <div class="card-body">
-                                <h4 class="border-bottom pb-2">Infeksius Tiap Bulan</h4>
-                                <div id="spline_data" data-spline="{{ $infeksiPieChart }}"></div>
+                                <h4 class="border-bottom pb-2">Insiden Infeksi Bulan
+                                    <strong>{{ date('F - Y', strtotime(now())) }}</strong>
+                                </h4>
+                                <div id="pie_data" data-pie="{{ $infeksiPieChart }}"></div>
+                                <div id="chart_pie"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="border-bottom pb-2">Insiden Tahun <strong>{{ now()->format('Y') }}</strong></h4>
+                                <div id="spline_data" data-spline="{{ $infeksiSplineChart }}"></div>
                                 <div id="chart_spline"></div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <div class="card">
                             <div class="card-body">
                                 <h4 class="border-bottom pb-2">Infeksius Tiap Bulan</h4>
-                                <div id="line_data" data-line="{{ $infeksiPieChart }}"></div>
+                                <div id="line_data" data-line=""></div>
                                 <div id="chart_line"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="border-bottom pb-2">Infeksius Tiap Bulan</h4>
-                                <div id="pie_data" data-pie="{{ $infeksiPieChart }}"></div>
-                                <div id="chart_pie"></div>
                             </div>
                         </div>
                     </div>
@@ -61,15 +63,19 @@
         });
     </script>
     <script type="text/javascript">
+        let splineData = $('#spline_data').attr('data-spline');
+        let splineDataParse = JSON.parse(splineData);
+        let splineDataSeries = [];
+        let splineSeries = Object.entries(splineDataParse).forEach((item, key) => {
+            splineDataSeries.push({
+                name: item[0],
+                data: Object.values(item[1])
+            })
+        })
+
         var options = {
-            series: [{
-                name: 'series1',
-                data: [31, 40, 28, 51, 42, 109, 100]
-            }, {
-                name: 'series2',
-                data: [11, 32, 45, 32, 34, 52, 41]
-            }],
-            colors: ['#9b5de5', '#f15bb5'],
+            series: splineDataSeries,
+            colors: ['#9b5de5', '#2a9d8f', '#ff6c0e', '#9ef01a', '#f15bb5', '#ef233c', '#f4acb7', '#84a59d', '#7678ed'],
             chart: {
                 height: 350,
                 type: 'area'
@@ -77,18 +83,15 @@
             dataLabels: {
                 enabled: true,
                 formatter: function(val, opts) {
-                    return val + ' insiden'
+                    return val + ' ins'
                 }
             },
             stroke: {
                 curve: 'smooth'
             },
             xaxis: {
-                type: 'datetime',
-                categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z",
-                    "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z",
-                    "2018-09-19T06:30:00.000Z"
-                ]
+                type: 'text',
+                categories: ['Okt', 'Nov', 'Des', 'Jan']
             },
             tooltip: {
                 x: {
@@ -181,7 +184,7 @@
         var pie_options = {
             series: pieSeries,
             chart: {
-                width: 560,
+                width: 460,
                 type: 'pie',
             },
             labels: pieLabels,

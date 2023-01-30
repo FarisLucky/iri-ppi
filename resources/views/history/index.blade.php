@@ -95,7 +95,7 @@
         <!-- Modal -->
         @include('insiden.modal_edit')
     @endsection
-    @push('javascript')
+    @prepend('javascript')
         <script src="{{ asset('admin/dist/datatables/jquery.dataTables.min.js') }}"></script>
         <script src="{{ asset('admin/dist/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
         <script src="{{ asset('admin/dist/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
@@ -104,7 +104,7 @@
         <script type="text/javascript">
             let table;
             const ajaxUrl = $('#url').attr('data-url');
-            var myModal = new bootstrap.Modal(document.getElementById('modal-edit'))
+            const myModal = new bootstrap.Modal(document.getElementById('modal-edit'))
 
             $(function() {
                 hideLoader()
@@ -364,4 +364,4 @@
                 $('.select-checkbox').prop('checked', params);
             }
         </script>
-    @endpush
+    @endprepend

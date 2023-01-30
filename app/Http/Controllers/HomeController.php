@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Insiden;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
@@ -18,7 +19,8 @@ class HomeController extends Controller
     {
         DB::statement("SET SQL_MODE=''");
         $infeksiPieChart = $this->pie();
-        return view('home', compact('infeksiPieChart'));
+        $infeksiSplineChart = $this->spline();
+        return view('home', compact('infeksiPieChart', 'infeksiSplineChart'));
     }
 
     public function pie()
@@ -53,8 +55,43 @@ class HomeController extends Controller
 
             $result->put($infeksi, $getInfeksi);
         }
-        // dd($result);
 
         return $result->toJson();
+    }
+
+    public function spline()
+    {
+        $year = date('Y');
+
+        if (request()->has('filter_by_year') != null) {
+            $year = request()->input('filter_by_year');
+        }
+
+        $tipeInfeksi = 'PLEBITIS';
+
+        $infeksiusType = [
+            'PLEBITIS-YA',
+            'ISK-YA',
+            'IDO-YA',
+            'IDO-NON OPERASI',
+        ];
+
+        $getInfeksi = Insiden::select(
+            DB::raw('COUNT(id) as jumlah_infeksi'),
+            DB::raw('RUANGAN as ruangan'),
+            DB::raw('MONTH(TANGGAL) as bulan')
+        )
+            ->whereBetween('TANGGAL', ['2022-10-1', '2023-01-30'])
+            ->where($tipeInfeksi, 'YA')
+            ->groupBy('ruangan', 'bulan')
+            ->get();
+
+        $groupByRuangan = $getInfeksi->groupBy('ruangan');
+        $groupByRuanganAndBulan = $groupByRuangan->map->groupBy('bulan');
+        $ruanganAndInsiden = $groupByRuanganAndBulan->map->transform(function ($item) {
+            return $item[0]['jumlah_infeksi'] ?? 0;
+        });
+
+        return $ruanganAndInsiden->toJson();
     }
 }

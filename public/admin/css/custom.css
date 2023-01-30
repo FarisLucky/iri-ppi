@@ -1,9 +1,28 @@
+:root {
+    --font-global: 12px;
+}
+body {
+    font-size: var(--font-global)!important;
+}
+#sidebar {
+    min-width: 240px;
+    max-width: 240px;
+}
+.sidebar-content {
+    width: 240px!important;
+}
+.sidebar-brand {
+    font-size: 16px;
+}
+.form-control, .form-select, .form-check, .btn {
+    font-size: var(--font-global)!important;
+}
 .content {
     padding: 1rem 0;
 }
 
 .loader {
-    position: absolute;
+    position: fixed;
     top: 0;
     bottom: 0;
     right: 0;
@@ -32,7 +51,7 @@
 }
 
 .table {
-    font-size: 13px;
+    font-size: var(--font-global);
     letter-spacing: 0.3px;
 }
 

@@ -140,7 +140,7 @@
             });
 
         });
-        myModal.addEventListener('hidden.bs.modal', (event) => {
+        window.addEventListener('hidden.bs.modal', (event) => {
             resetForm();
         })
 

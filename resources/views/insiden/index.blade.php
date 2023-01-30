@@ -11,7 +11,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="h3">List Insiden</h4>
+                        <h4 class="h4">List Insiden</h4>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -106,7 +106,7 @@
         <!-- Modal -->
         @include('insiden.modal_edit')
     @endsection
-    @push('javascript')
+    @prepend('javascript')
         <script src="{{ asset('admin/dist/datatables/jquery.dataTables.min.js') }}"></script>
         <script src="{{ asset('admin/dist/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
         <script src="{{ asset('admin/dist/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
@@ -374,4 +374,4 @@
                 $('.select-checkbox').prop('checked', params);
             }
         </script>
-    @endpush
+    @endprepend
