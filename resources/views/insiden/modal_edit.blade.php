@@ -90,6 +90,13 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-12">
+                            <label for="verified" class="form-check form-check-inline">
+                                <input type="checkbox" name="verified" id="verified" class="form-check-input"
+                                    value="1">
+                                <span class="form-check-label">Verifikasi</span>
+                            </label>
+                        </div>
                     </div>
                     <hr>
                     <div class="mb-1 row justify-content-end">
@@ -120,9 +127,25 @@
                 data: data,
                 dataType: "JSON"
             }).done((response) => {
+                toastrSuccess('Berhasil diperbarui')
                 myModal.hide()
+
+                table
+                    .row(this)
+                    .remove()
+                    .draw(false);
+
+            }).fail((errors) => {
+                toastrError(errors.responseText)
             });
 
         });
+        myModal.addEventListener('hidden.bs.modal', (event) => {
+            resetForm();
+        })
+
+        function resetForm() {
+            $('#InsidenUpdateForm')[0].reset()
+        }
     </script>
 @endpush

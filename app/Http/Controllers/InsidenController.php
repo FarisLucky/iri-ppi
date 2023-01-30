@@ -16,13 +16,20 @@ class InsidenController extends Controller
     public function data()
     {
         $insidens = Insiden::selectInsiden()
-            ->joinPasien();
+            ->joinPasien()
+            ->where('verified', 0);
 
-        if (request()->has('filter_ruangan')) {
+        if (
+            request()->has('filter_ruangan') &&
+            !is_null(request()->input('filter_ruangan'))
+        ) {
             $insidens->where('ppi.RUANGAN', request()->input('filter_ruangan'));
         }
 
-        if (request()->has('filter_year')) {
+        if (
+            request()->has('filter_year') &&
+            !is_null(request()->input('filter_year'))
+        ) {
             $insidens->whereYear('ppi.TANGGAL', request()->input('filter_year'));
         }
 
@@ -34,18 +41,12 @@ class InsidenController extends Controller
             ->addColumn('mr', function ($insiden) {
                 return $insiden->mr;
             })
-            // ->addColumn('nama', function ($insiden) {
-            //     return $insiden->pasien->NAMA;
-            // })
-            // ->addColumn('ruangan', function ($insiden) {
-            //     return $insiden->pasien->RUANGAN;
-            // })
             ->addColumn('aksi', function ($insiden) {
                 return '<div class="table-action">
                     <a href="' . route('insiden.edit', $insiden->id) . '" class="act-edit">
                         <i class="fas fa-edit text-info"></i>
                     </a>
-                    <a href="" class="act-delete">
+                    <a href="' . route('insiden.destroy', $insiden->id) . '" class="act-delete">
                         <i class="fas fa-trash text-danger"></i>
                     </a>
                 </div>';
@@ -96,7 +97,7 @@ class InsidenController extends Controller
 
             $input = array_change_key_case($request->validated(), CASE_UPPER);
             $input += [
-                'VERIFIED' => Insiden::VERIFIED,
+                'VERIFIED' => !is_null($request->verified) ? Insiden::VERIFIED : 0,
                 'UPDATED_AT' => now()->format('Y-m-d H:i:s')
             ];
             DB::beginTransaction();
@@ -119,7 +120,7 @@ class InsidenController extends Controller
         }
     }
 
-    public function delete($id)
+    public function destroy($id)
     {
         try {
 

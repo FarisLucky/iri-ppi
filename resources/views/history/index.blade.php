@@ -11,12 +11,12 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="h3">List Insiden</h4>
+                        <h4 class="h3">History Insiden</h4>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-12 table-responsive">
-                                <div id="url" data-url="{{ route('insiden.data') }}"></div>
+                                <div id="url" data-url="{{ route('insiden.history.data') }}"></div>
                                 <div class="mb-2">
                                     <strong>Filter</strong>
                                     <div class="row">
@@ -55,18 +55,7 @@
                                         </div>
                                     </div>
                                     <hr>
-                                    <div class="d-flex justify-content-between">
-                                        <div class="d-inline-block">
-                                            <strong class="d-inline-block mb-1">Tindakan</strong>
-                                            <div class="form-group mb-2">
-                                                <button type="button" id="btn_verif"
-                                                    data-url="{{ route('insiden.verif') }}" class="btn btn-sm btn-success"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Verifikasi">
-                                                    <i class="fas fa-check mr-1"></i>
-                                                    Verifikasi
-                                                </button>
-                                            </div>
-                                        </div>
+                                    <div class="d-flex justify-content-end mb-2">
                                         <div class="d-inline-block">
                                             <button type="button" id="btn_reset" class="btn btn-outline-secondary">
                                                 <i class="fas fa-undo-alt mr-1"></i>
@@ -131,7 +120,7 @@
                     processing: true,
                     serverSide: true,
                     language: {
-                        processing: '<i class="fas fa-circle-notch fa-spin fa-fw text-primary"></i>'
+                        processing: '<i class="fas fa-circle-notch fa-spin fa-fw"></i>'
                     },
                     lengthMenu: [10, 25, 50, 100, 250, 500],
                     ajax: ajaxCallback(),
@@ -339,7 +328,8 @@
                     $('#InsidenUpdateForm select[name=plebitis]').val(response.data.plebitis).trigger('change')
                     $('#InsidenUpdateForm select[name=isk]').val(response.data.isk).trigger('change')
                     $('#InsidenUpdateForm select[name=ido]').val(response.data.ido).trigger('change')
-                    $('#InsidenUpdateForm input[name=verified]').val(response.data.verified).prop('checked')
+                    $('#InsidenUpdateForm input[name=verified]').val(response.data.verified).prop('checked',
+                        true)
                     hideLoader()
                     myModal.show()
                 });

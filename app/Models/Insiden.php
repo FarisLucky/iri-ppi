@@ -29,13 +29,14 @@ class Insiden extends Model
             'ppi.TANGGAL AS tanggal',
             'ppi.LMRAWAT AS lmrawat',
             'ppi.LMINFUS AS lminfus',
-            'ppi.LMINFUS AS lmktt',
+            'ppi.LMKTT AS lmktt',
             'ppi.PLEBITIS AS plebitis',
             'ppi.ISK AS isk',
             'ppi.IDO AS ido',
             'ppi.MR AS mr',
             'ppi.ID AS id',
             'ppi.RUANGAN AS ruangan',
+            'ppi.VERIFIED AS verified',
         );
     }
 

@@ -21,7 +21,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link href="{{ asset('admin/css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('admin/css/template.css') }}" rel="stylesheet">
     <link href="{{ asset('admin/css/custom.css') }}" rel="stylesheet">
+    <link href="{{ asset('admin/dist/toastr/toastr.min.css') }}" rel="stylesheet">
     @stack('css')
 </head>
 
@@ -43,18 +45,37 @@
                         Menu
                     </li>
 
-                    <li class="sidebar-item {{ in_array(request()->route()->getName(),['login'])? 'active': '' }}">
-                        <a class="sidebar-link" href="{{ route('login') }}">
+                    <li class="sidebar-item {{ in_array(request()->route()->getName(),['home'])? 'active': '' }}">
+                        <a class="sidebar-link" href="{{ route('home') }}">
                             <i class="align-middle" data-feather="sliders"></i> <span
                                 class="align-middle">Dashboard</span>
                         </a>
                     </li>
 
-                    <li
+                    {{-- <li
                         class="sidebar-item {{ in_array(request()->route()->getName(),['insiden.index'])? 'active': '' }}">
                         <a class="sidebar-link" href="{{ route('insiden.index') }}">
                             <i class="align-middle" data-feather="user"></i> <span class="align-middle">Insiden</span>
                         </a>
+                    </li> --}}
+                    <li
+                        class="sidebar-item {{ in_array(request()->route()->getName(),['insiden.index', 'insiden.history.index'])? 'active': '' }}">
+                        <a data-bs-target="#insiden" data-bs-toggle="collapse" class="sidebar-link collapsed">
+                            <i class="align-middle" data-feather="layout"></i>
+                            <span class="align-middle">Insiden</span>
+                        </a>
+                        <ul id="insiden"
+                            class="sidebar-dropdown list-unstyled collapse
+                        {{ in_array(request()->route()->getName(),['insiden.index', 'insiden.history.index'])? 'show': '' }}"
+                            data-bs-parent="#sidebar">
+                            <li class="sidebar-item {{ request()->routeIs('insiden.index') ? 'active' : '' }}"><a
+                                    class="sidebar-link" href="{{ route('insiden.index') }}">List</a>
+                            </li>
+                            <li class="sidebar-item {{ request()->routeIs('insiden.history.index') ? 'active' : '' }}">
+                                <a class="sidebar-link" href="{{ route('insiden.history.index') }}">History</a>
+                            </li>
+
+                        </ul>
                     </li>
                 </ul>
             </div>
@@ -107,22 +128,13 @@
                     <div class="row text-muted">
                         <div class="col-6 text-left">
                             <p class="mb-0">
-                                <a href="index.html" class="text-muted"><strong>AdminKit Demo</strong></a> &copy;
+                                <a href="index.html" class="text-muted"><strong>RSGS IT Salman</strong></a> &copy;
                             </p>
                         </div>
                         <div class="col-6 text-right">
                             <ul class="list-inline">
                                 <li class="list-inline-item">
                                     <a class="text-muted" href="#">Support</a>
-                                </li>
-                                <li class="list-inline-item">
-                                    <a class="text-muted" href="#">Help Center</a>
-                                </li>
-                                <li class="list-inline-item">
-                                    <a class="text-muted" href="#">Privacy</a>
-                                </li>
-                                <li class="list-inline-item">
-                                    <a class="text-muted" href="#">Terms</a>
                                 </li>
                             </ul>
                         </div>
@@ -136,6 +148,7 @@
     </script>
     <script src="{{ asset('admin/js/app.js') }}"></script>
     <script src="{{ asset('admin/dist/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('admin/dist/toastr/toastr.min.js') }}"></script>
     <script>
         var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
         var API_TOKEN = $('meta[name="api-token"]').attr('content');
@@ -151,6 +164,40 @@
             loader.classList.remove("show");
             loader.classList.add("hide");
         }
+
+        function toastrConfig() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "5000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+        }
+
+        function toastrSuccess(messages) {
+            return toastr.success(messages)
+        }
+
+        function toastrError(messages) {
+            return toastr.error(messages)
+        }
+
+        function toastrWarning(messages) {
+            return toastr.warning(messages)
+        }
+
+        toastrConfig();
     </script>
     @stack('javascript')
 
