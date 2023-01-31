@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Insiden;
 use App\Services\PerhitunganService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -19,10 +20,10 @@ class HomeController extends Controller
     public function index()
     {
         DB::statement("SET SQL_MODE=''");
-        $this->column();
+        $infeksiColumn = $this->column();
         $infeksiPieChart = $this->pie();
         $infeksiSplineChart = $this->spline();
-        return view('home', compact('infeksiPieChart', 'infeksiSplineChart'));
+        return view('home', compact('infeksiColumn', 'infeksiPieChart', 'infeksiSplineChart'));
     }
 
     public function pie()
@@ -48,6 +49,11 @@ class HomeController extends Controller
             ->pluck('ttl_lminfus')
             ->first();
 
+        $jmlPasienOperasi = Insiden::select('ID')
+            ->whereBetween('TANGGAL', [$startDate, $endDate])
+            ->where('IDO', 'YA')
+            ->count();
+
         $result = collect();
         foreach ($infeksiusType as $infeksi) {
             $explodeKey = explode('-', $infeksi); // => [0]PLEBISTIS, [1]YA
@@ -69,26 +75,17 @@ class HomeController extends Controller
 
     public function spline()
     {
-        $year = date('Y');
-
-        if (request()->has('filter_by_year') != null) {
-            $year = request()->input('filter_by_year');
-        }
+        $startDate = date('Y-01-01');
+        $endDate = date('Y-12-t');
 
         $tipeInfeksi = 'PLEBITIS';
 
-        $infeksiusType = [
-            'PLEBITIS-YA',
-            'ISK-YA',
-            'IDO-YA',
-        ];
-
-        $getInfeksi = Insiden::select(
-            DB::raw('SUM(id) as sum_infeksi'),
+        $sumLmInfus = Insiden::select(
+            DB::raw('SUM(LMINFUS) as sum_lminfus'),
             DB::raw('RUANGAN as ruangan'),
             DB::raw('MONTH(TANGGAL) as bulan')
         )
-            ->whereBetween('TANGGAL', ['2022-10-1', '2023-01-30'])
+            ->whereBetween('TANGGAL', [$startDate, $endDate])
             ->where($tipeInfeksi, 'YA')
             ->groupBy('ruangan', 'bulan')
             ->get();
@@ -98,15 +95,17 @@ class HomeController extends Controller
             DB::raw('RUANGAN as ruangan'),
             DB::raw('MONTH(TANGGAL) as bulan')
         )
-            ->whereBetween('TANGGAL', ['2022-10-1', '2023-01-30'])
+            ->whereBetween('TANGGAL', [$startDate, $endDate])
             ->where($tipeInfeksi, 'YA')
             ->groupBy('ruangan', 'bulan')
             ->get();
 
         $groupByRuangan = $getInfeksi->groupBy('ruangan');
         $groupByRuanganAndBulan = $groupByRuangan->map->groupBy('bulan');
-        $ruanganAndInsiden = $groupByRuanganAndBulan->map->transform(function ($item) {
-            return $item[0]['jumlah_infeksi'] ?? 0;
+        $ruanganAndInsiden = $groupByRuanganAndBulan->map->transform(function ($item) use ($sumLmInfus) {
+            $lmInfus = $sumLmInfus->where('ruangan', $item[0]['ruangan'])->first()->sum_lminfus;
+            $hitung = PerhitunganService::plebitis($item[0]['jumlah_infeksi'], $lmInfus);
+            return round($hitung, PHP_ROUND_HALF_UP);
         });
 
         return $ruanganAndInsiden->toJson();
@@ -114,38 +113,46 @@ class HomeController extends Controller
 
     public function column()
     {
-        $year = date('M');
+        $startDate = date('Y-m-01');
+        $endDate = date('Y-m-t');
 
         $tipeInfeksi = 'PLEBITIS';
 
-        $getInfeksi = Insiden::select(
+        $infeksiPerRuangan = Insiden::select(
             DB::raw('SUM(LMINFUS) as sum_lminfus'),
             DB::raw('RUANGAN as ruangan'),
             DB::raw('MONTH(TANGGAL) as bulan')
         )
-            ->whereMonth('TANGGAL', date('m'))
+            ->whereBetween('TANGGAL', [$startDate, $endDate])
             ->where($tipeInfeksi, 'YA')
             ->groupBy('ruangan')
-            ->pluck('ruangan', 'sum_lminfus')
-            ->all();
-        dd($getInfeksi);
+            ->get();
 
         $getInfeksi = Insiden::select(
             DB::raw('COUNT(id) as jumlah_infeksi'),
             DB::raw('RUANGAN as ruangan'),
             DB::raw('MONTH(TANGGAL) as bulan')
         )
-            ->whereBetween('TANGGAL', ['2022-10-1', '2023-01-30'])
+            ->whereBetween('TANGGAL', [$startDate, $endDate])
             ->where($tipeInfeksi, 'YA')
-            ->groupBy('ruangan', 'bulan')
+            ->groupBy('ruangan')
             ->get();
 
-        $groupByRuangan = $getInfeksi->groupBy('ruangan');
-        $groupByRuanganAndBulan = $groupByRuangan->map->groupBy('bulan');
-        $ruanganAndInsiden = $groupByRuanganAndBulan->map->transform(function ($item) {
-            return $item[0]['jumlah_infeksi'] ?? 0;
-        });
+        $infeksi = $getInfeksi->transform(function ($item) use ($infeksiPerRuangan) {
+            $lmInfus = $infeksiPerRuangan->where('ruangan', $item->ruangan)->first()->sum_lminfus;
+            $hitung = PerhitunganService::plebitis($item->jumlah_infeksi, $lmInfus);
+            $item->ruangan = $item->ruangan;
+            $item->result = round($hitung, PHP_ROUND_HALF_UP);
+            $item->sum_lminfus = $lmInfus;
+            return $item;
+        })->pluck('result', 'ruangan');
 
-        return $ruanganAndInsiden->toJson();
+        $dataInfeksi = [
+            'infeksi' => $infeksi,
+            'bulan' => date('F', strtotime($startDate)),
+            'tahun' => date('Y', strtotime($startDate)),
+        ];
+
+        return collect($dataInfeksi)->toJson();
     }
 }

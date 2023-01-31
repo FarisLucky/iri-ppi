@@ -21,7 +21,7 @@
             </div>
             <div class="col-md-12">
                 <div class="row">
-                    <div class="col-md-6">
+                    {{-- <div class="col-md-6">
                         <div class="card">
                             <div class="card-body">
                                 <h4 class="border-bottom pb-2">Insiden Infeksi Bulan
@@ -31,7 +31,7 @@
                                 <div id="chart_pie"></div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-body">
@@ -49,17 +49,8 @@
                                 <h4 class="border-bottom pb-2">Insiden Rate <strong>PLEBITIS</strong> Tiap Unit Pada
                                     <strong>{{ now()->format('F - Y') }}</strong>
                                 </h4>
-                                <div id="plebitis_column" data-spline="{{ $infeksiSplineChart }}"></div>
+                                <div id="plebitis_column" data-column="{{ $infeksiColumn }}"></div>
                                 <div id="plebitis_column"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="border-bottom pb-2">Infeksius Tiap Bulan</h4>
-                                <div id="line_data" data-line=""></div>
-                                <div id="chart_line"></div>
                             </div>
                         </div>
                     </div>
@@ -91,12 +82,15 @@
             colors: ['#9b5de5', '#2a9d8f', '#ff6c0e', '#9ef01a', '#f15bb5', '#ef233c', '#f4acb7', '#84a59d', '#7678ed'],
             chart: {
                 height: 350,
-                type: 'line'
+                type: 'line',
+                fontSize: '14px',
+                fontFamily: 'Inter',
             },
             dataLabels: {
                 enabled: true,
                 formatter: function(val, opts) {
-                    return val + ' inf';
+                    console.log(opts)
+                    return val;
                 }
             },
             stroke: {
@@ -104,146 +98,83 @@
             },
             xaxis: {
                 type: 'text',
-                categories: ['Okt', 'Nov', 'Des', 'Jan']
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agus', 'Sept', 'Okt', 'Nov', 'Des'],
             },
-            tooltip: {
-                x: {
-                    format: 'dd/MM/yy HH:mm'
-                },
-            },
+            yaxis: {
+                title: {
+                    text: 'presentase per mille',
+                }
+            }
         };
 
         var chart = new ApexCharts(document.querySelector("#chart_spline"), options);
         chart.render();
 
-        var options = {
-            series: [{
-                    name: "High - 2013",
-                    data: [28, 29, 33, 36, 32, 32, 33]
-                },
-                {
-                    name: "Low - 2013",
-                    data: [12, 11, 14, 18, 17, 13, 13]
-                }
-            ],
-            chart: {
-                height: 350,
-                type: 'line',
-                dropShadow: {
-                    enabled: true,
-                    color: '#000',
-                    top: 18,
-                    left: 7,
-                    blur: 10,
-                    opacity: 0.2
-                },
-                toolbar: {
-                    show: false
-                }
-            },
-            colors: ['#1982c4', '#ffca3a'],
-            dataLabels: {
-                enabled: true,
-                formatter: function(val, opts) {
-                    return val + ' insiden'
-                }
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            grid: {
-                borderColor: '#e7e7e7',
-                row: {
-                    colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-                    opacity: 0.5
-                },
-            },
-            markers: {
-                size: 1
-            },
-            xaxis: {
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-                title: {
-                    text: 'Month'
-                }
-            },
-            yaxis: {
-                title: {
-                    text: 'Temperature'
-                },
-                min: 5,
-                max: 40
-            },
-            legend: {
-                position: 'top',
-                horizontalAlign: 'right',
-                floating: true,
-                offsetY: -25,
-                offsetX: -5
-            }
-        };
+        // let pieData = $('#pie_data').attr('data-pie');
+        // let pieDataParse = JSON.parse(pieData);
+        // let pieSeries = Object.values(pieDataParse);
+        // let pieLabels = Object.entries(pieDataParse).map((item, key) => {
+        //     return [item[0], item[1]]
+        // });
 
-        var chart = new ApexCharts(document.querySelector("#chart_line"), options);
-        chart.render();
+        // var pie_options = {
+        //     series: pieSeries,
+        //     chart: {
+        //         width: 460,
+        //         type: 'pie',
+        //         fontSize: '14px',
+        //         fontFamily: 'Inter',
+        //     },
+        //     labels: pieLabels,
+        //     legend: {
+        //         onItemHover: {
+        //             highlightDataSeries: true
+        //         },
+        //         formatter: (item, key) => {
+        //             let result = item[0] + ' = ' + item[1];
+        //             if (item[0] == 'IDO-YA') {
+        //                 return result + ' %';
+        //             } else {
+        //                 return result + ' &#8240;';
+        //             }
+        //         }
+        //     },
+        //     responsive: [{
+        //         breakpoint: 480,
+        //         options: {
+        //             chart: {
+        //                 width: 200
+        //             },
+        //             legend: {
+        //                 position: 'bottom'
+        //             }
+        //         }
+        //     }]
+        // };
 
+        // var chart = new ApexCharts(document.querySelector("#chart_pie"), pie_options);
+        // chart.render();
 
-        let pieData = $('#pie_data').attr('data-pie');
-        let pieDataParse = JSON.parse(pieData);
-        let pieSeries = Object.values(pieDataParse);
-        let pieLabels = Object.entries(pieDataParse).map((item, key) => {
-            return [item[0], item[1]]
-        });
-
-        var pie_options = {
-            series: pieSeries,
-            chart: {
-                width: 460,
-                type: 'pie',
-            },
-            labels: pieLabels,
-            legend: {
-                onItemHover: {
-                    highlightDataSeries: true
-                },
-                formatter: (item, key) => {
-                    let result = item[0] + ' = ' + item[1];
-                    if (item[0] == 'IDO-YA') {
-                        return result + ' %';
-                    } else {
-                        return result + ' &#8240;';
-                    }
-                }
-            },
-            responsive: [{
-                breakpoint: 480,
-                options: {
-                    chart: {
-                        width: 200
-                    },
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }]
-        };
-
-        var chart = new ApexCharts(document.querySelector("#chart_pie"), pie_options);
-        chart.render();
+        let columnData = $('#plebitis_column').attr('data-column');
+        let columnDataParse = JSON.parse(columnData);
+        let columnDataSeries = [];
+        let columnSeries = Object.entries(columnDataParse.infeksi).forEach((item, key) => {
+            columnDataSeries.push({
+                name: item[0],
+                data: [
+                    item[1]
+                ]
+            })
+        })
+        let columnCategories = [columnDataParse.bulan]
 
         var plebitis_column_options = {
-            series: [{
-                name: 'Net Profit',
-                data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
-            }, {
-                name: 'Revenue',
-                data: [76, 85, 101, 98, 87, 105, 91, 114, 94]
-            }, {
-                name: 'Free Cash Flow',
-                data: [35, 41, 36, 26, 45, 48, 52, 53, 41]
-            }],
+            series: columnDataSeries,
             chart: {
                 type: 'bar',
-                height: 350
+                height: 350,
+                fontSize: '14px',
+                fontFamily: 'Inter',
             },
             plotOptions: {
                 bar: {
@@ -253,7 +184,10 @@
                 },
             },
             dataLabels: {
-                enabled: false
+                enabled: true,
+                formatter: function(val) {
+                    return val
+                }
             },
             stroke: {
                 show: true,
@@ -261,11 +195,11 @@
                 colors: ['transparent']
             },
             xaxis: {
-                categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+                categories: columnCategories,
             },
             yaxis: {
                 title: {
-                    text: '$ (thousands)'
+                    text: 'presentase per mille',
                 }
             },
             fill: {
@@ -274,7 +208,7 @@
             tooltip: {
                 y: {
                     formatter: function(val) {
-                        return "$ " + val + " thousands"
+                        return val + " &permil;"
                     }
                 }
             }
