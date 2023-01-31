@@ -35,9 +35,22 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-body">
-                                <h4 class="border-bottom pb-2">Insiden Tahun <strong>{{ now()->format('Y') }}</strong></h4>
+                                <h4 class="border-bottom pb-2">Insiden Rate <strong>PLEBITIS</strong> Tahun
+                                    <strong>{{ now()->format('Y') }}</strong>
+                                </h4>
                                 <div id="spline_data" data-spline="{{ $infeksiSplineChart }}"></div>
                                 <div id="chart_spline"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="border-bottom pb-2">Insiden Rate <strong>PLEBITIS</strong> Tiap Unit Pada
+                                    <strong>{{ now()->format('F - Y') }}</strong>
+                                </h4>
+                                <div id="plebitis_column" data-spline="{{ $infeksiSplineChart }}"></div>
+                                <div id="plebitis_column"></div>
                             </div>
                         </div>
                     </div>
@@ -78,12 +91,12 @@
             colors: ['#9b5de5', '#2a9d8f', '#ff6c0e', '#9ef01a', '#f15bb5', '#ef233c', '#f4acb7', '#84a59d', '#7678ed'],
             chart: {
                 height: 350,
-                type: 'area'
+                type: 'line'
             },
             dataLabels: {
                 enabled: true,
                 formatter: function(val, opts) {
-                    return val + ' ins'
+                    return val + ' inf';
                 }
             },
             stroke: {
@@ -178,7 +191,7 @@
         let pieDataParse = JSON.parse(pieData);
         let pieSeries = Object.values(pieDataParse);
         let pieLabels = Object.entries(pieDataParse).map((item, key) => {
-            return [item[0] + ' = ' + item[1]]
+            return [item[0], item[1]]
         });
 
         var pie_options = {
@@ -188,6 +201,19 @@
                 type: 'pie',
             },
             labels: pieLabels,
+            legend: {
+                onItemHover: {
+                    highlightDataSeries: true
+                },
+                formatter: (item, key) => {
+                    let result = item[0] + ' = ' + item[1];
+                    if (item[0] == 'IDO-YA') {
+                        return result + ' %';
+                    } else {
+                        return result + ' &#8240;';
+                    }
+                }
+            },
             responsive: [{
                 breakpoint: 480,
                 options: {
@@ -202,6 +228,59 @@
         };
 
         var chart = new ApexCharts(document.querySelector("#chart_pie"), pie_options);
+        chart.render();
+
+        var plebitis_column_options = {
+            series: [{
+                name: 'Net Profit',
+                data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
+            }, {
+                name: 'Revenue',
+                data: [76, 85, 101, 98, 87, 105, 91, 114, 94]
+            }, {
+                name: 'Free Cash Flow',
+                data: [35, 41, 36, 26, 45, 48, 52, 53, 41]
+            }],
+            chart: {
+                type: 'bar',
+                height: 350
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '55%',
+                    endingShape: 'rounded'
+                },
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                show: true,
+                width: 2,
+                colors: ['transparent']
+            },
+            xaxis: {
+                categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+            },
+            yaxis: {
+                title: {
+                    text: '$ (thousands)'
+                }
+            },
+            fill: {
+                opacity: 1
+            },
+            tooltip: {
+                y: {
+                    formatter: function(val) {
+                        return "$ " + val + " thousands"
+                    }
+                }
+            }
+        };
+
+        var chart = new ApexCharts(document.querySelector("#plebitis_column"), plebitis_column_options);
         chart.render();
     </script>
 @endpush
