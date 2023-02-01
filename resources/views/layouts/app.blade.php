@@ -16,7 +16,7 @@
     <!-- CSS -->
     <link rel="shortcut icon" href="img/icons/icon-48x48.png" />
 
-    <title>IRI-PPI</title>
+    <title>Dashboard KMKP</title>
 
     <link href="{{ asset('admin/dist/bootstrap/bootstrap5.min.css') }}" rel="stylesheet">
     <link href="{{ asset('admin/css/app.css') }}" rel="stylesheet">
@@ -36,7 +36,7 @@
         <nav id="sidebar" class="sidebar">
             <div class="sidebar-content js-simplebar">
                 <a class="sidebar-brand" href="{{ route('home') }}">
-                    <span class="align-middle">Insiden Infeksius PPI</span>
+                    <span class="align-middle">Dashboard KMKP</span>
                 </a>
 
                 <ul class="sidebar-nav">
@@ -74,6 +74,21 @@
                                 <a class="sidebar-link" href="{{ route('insiden.history.index') }}">History</a>
                             </li>
 
+                        </ul>
+                    </li>
+                    <li
+                        class="sidebar-item {{ in_array(request()->route()->getName(),['mutu.dashboard'])? 'active': '' }}">
+                        <a data-bs-target="#mutu" data-bs-toggle="collapse" class="sidebar-link collapsed">
+                            <i class="align-middle fas fa-person-booth"></i>
+                            <span class="align-middle">Mutu</span>
+                        </a>
+                        <ul id="mutu"
+                            class="sidebar-dropdown list-unstyled collapse
+                        {{ in_array(request()->route()->getName(),['mutu.dashboard'])? 'show': '' }}"
+                            data-bs-parent="#sidebar">
+                            <li class="sidebar-item {{ request()->routeIs('mutu.dashboard') ? 'active' : '' }}"><a
+                                    class="sidebar-link" href="{{ route('mutu.dashboard') }}">Dashboard</a>
+                            </li>
                         </ul>
                     </li>
                 </ul>

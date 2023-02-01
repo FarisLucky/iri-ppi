@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardMutuController;
 use App\Http\Controllers\InsidenController;
 use App\Http\Controllers\InsidenHistoryController;
 use Illuminate\Support\Facades\Auth;
@@ -31,3 +32,6 @@ Route::delete('insiden/{id}', [InsidenController::class, 'destroy'])->name('insi
 // History Route
 Route::get('history/insiden-view/data', [InsidenHistoryController::class, 'data'])->name('insiden.history.data');
 Route::get('history/insiden-view', [InsidenHistoryController::class, 'index'])->name('insiden.history.index');
+
+// Mutu
+Route::get('mutu/dashboard', [DashboardMutuController::class, 'index'])->name('mutu.dashboard');

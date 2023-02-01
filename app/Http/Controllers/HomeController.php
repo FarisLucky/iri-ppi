@@ -21,9 +21,9 @@ class HomeController extends Controller
     {
         DB::statement("SET SQL_MODE=''");
         $infeksiColumn = $this->column();
-        $infeksiPieChart = $this->pie();
+        // $infeksiPieChart = $this->pie();
         $infeksiSplineChart = $this->spline();
-        return view('home', compact('infeksiColumn', 'infeksiPieChart', 'infeksiSplineChart'));
+        return view('home', compact('infeksiColumn', 'infeksiSplineChart'));
     }
 
     public function pie()
@@ -44,7 +44,7 @@ class HomeController extends Controller
             'IDO-YA',
         ];
 
-        $lmInfusInMonth = Insiden::select(DB::raw('SUM(lminfus) as ttl_lminfus'))
+        $lmInfusInMonth = Insiden::select(DB::raw('SUM(LMINFUS) as ttl_lminfus'))
             ->whereBetween('TANGGAL', [$startDate, $endDate])
             ->pluck('ttl_lminfus')
             ->first();
@@ -60,10 +60,11 @@ class HomeController extends Controller
             $keyWhere = $explodeKey[0];
             $valWhere = $explodeKey[1];
 
-            $getInfeksi = Insiden::select('id')
+            $getInfeksi = Insiden::select('ID')
                 ->whereBetween('TANGGAL', [$startDate, $endDate])
                 ->where($keyWhere, $valWhere)
                 ->count();
+
             $functionName = strtolower($keyWhere);
             $resultInfeksi = PerhitunganService::$functionName($getInfeksi, $lmInfusInMonth);
 
@@ -91,7 +92,7 @@ class HomeController extends Controller
             ->get();
 
         $getInfeksi = Insiden::select(
-            DB::raw('COUNT(id) as jumlah_infeksi'),
+            DB::raw('COUNT(ID) as jumlah_infeksi'),
             DB::raw('RUANGAN as ruangan'),
             DB::raw('MONTH(TANGGAL) as bulan')
         )
