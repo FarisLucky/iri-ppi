@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Insiden;
+use App\Services\DashboardService;
 use App\Services\PerhitunganService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -19,10 +20,26 @@ class HomeController extends Controller
      */
     public function index()
     {
-        DB::statement("SET SQL_MODE=''");
-        $infeksiColumn = $this->column();
-        // $infeksiPieChart = $this->pie();
-        $infeksiSplineChart = $this->spline();
+        $params = [];
+        return view('home', compact('params'));
+    }
+
+    public function showChart(Request $request)
+    {
+        $params = [];
+
+        if ($request->has('filter_year')) {
+            $params['filter_year'] = $request->filter_year;
+        }
+
+        if ($request->has('filter_infeksi')) {
+            $params['filter_infeksi'] = $request->filter_infeksi;
+        }
+
+        $dashboard = new DashboardService();
+        $infeksiColumn = $dashboard->column($params);
+        $infeksiSplineChart = $dashboard->spline($params);
+
         return view('home', compact('infeksiColumn', 'infeksiSplineChart'));
     }
 

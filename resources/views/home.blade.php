@@ -1,21 +1,72 @@
 @extends('layouts.app')
-
 @section('content')
     <div class="container-fluid">
         <div class="row justify-content-center">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">{{ __('Dashboard') }}</div>
-
-                    <div class="card-body">
-                        @if (session('status'))
-                            <div class="alert alert-success" role="alert">
-                                {{ session('status') }}
+            <div class="col-md-12 mb-2">
+                <div class="accordion" id="accordionFilter">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header d-flex" id="headingOne">
+                            <button class="accordion-button d-inline-flex" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"
+                                style="width: 95%">
+                                Dashboard Insiden Infeksi PPI
+                            </button>
+                            <a href="{{ route('home') }}" class="cs-btn-accordion text-secondary">
+                                <i class="fas fa-undo-alt"></i>
+                            </a>
+                        </h2>
+                        @php
+                            $showChart = isset($infeksiSplineChart) && $infeksiSplineChart != '';
+                        @endphp
+                        <div id="collapseOne" class="accordion-collapse collapse {{ $showChart ? '' : 'show' }}"
+                            aria-labelledby="headingOne" data-bs-parent="#accordionFilter">
+                            <div class="accordion-body">
+                                <form action="{{ route('insiden.dashboard') }}" method="POST">
+                                    @csrf
+                                    <div class="row align-items-end">
+                                        <div class="col-md-2 mb-1 pr-0">
+                                            <label for="filter_year">Tahun</label>
+                                            <select name="filter_year" id="filter_year" class="form-control">
+                                                <option value="">Pilih Tahun</option>
+                                                @php
+                                                    $year = date('Y');
+                                                    $min = $year - 60;
+                                                    $max = $year;
+                                                @endphp
+                                                @for ($y = $max; $y >= $min; $y--)
+                                                    <option value="{{ $y }}"
+                                                        {{ $y == optional($params)['filter_year'] ? 'selected' : '' }}>
+                                                        {{ $y }}</option>
+                                                @endfor
+                                            </select>
+                                            @error('filter_year')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-2 mb-1 pr-0">
+                                            <label for="filter_infeksi">Jenis Infeksi</label>
+                                            <select name="filter_infeksi" id="filter_infeksi" class="form-control">
+                                                <option value="">Pilih Jenis Infeksi</option>
+                                                @php
+                                                    $jenisInfeksi = ['IDO', 'PLEBITIS', 'ISK'];
+                                                @endphp
+                                                @foreach ($jenisInfeksi as $jenis)
+                                                    <option value="{{ $jenis }}"
+                                                        {{ $jenis == optional($params)['filter_infeksi'] ? 'selected' : '' }}>
+                                                        {{ $jenis }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('filter_infeksi')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <div class="mt-1">
+                                            <button type="submit" class="btn btn-primary">Terapkan</button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
-                        @endif
-                        <h4 class="h4">
-                            {{ __('You are logged in!') }}
-                        </h4>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -32,25 +83,28 @@
                             </div>
                         </div>
                     </div> --}}
-                    <div class="col-md-12">
+                    <div class="col-md-12 {{ $showChart ? '' : 'd-none' }}">
                         <div class="card">
                             <div class="card-body">
-                                <h4 class="border-bottom pb-2">Insiden Rate <strong>PLEBITIS</strong> Tahun
+                                <h4 class="border-bottom pb-1">Insiden Rate <strong>PLEBITIS</strong> Tahun
                                     <strong>{{ now()->format('Y') }}</strong>
                                 </h4>
-                                <div id="spline_data" data-spline="{{ $infeksiSplineChart }}"></div>
+                                <div id="spline_data" data-spline="{{ optional($infeksiSplineChart)['dataSeries'] }}"
+                                    data-spline-label="{{ optional($infeksiSplineChart)['labelSeries'] }}"></div>
                                 <div id="chart_spline"></div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-12 {{ $showChart ? '' : 'd-none' }}">
                         <div class="card">
                             <div class="card-body">
-                                <h4 class="border-bottom pb-2">Insiden Rate <strong>PLEBITIS</strong> Tiap Unit Pada
+                                <h4 class="border-bottom pb-1">Insiden Rate <strong>PLEBITIS</strong> Tiap Unit Pada
                                     <strong>{{ now()->format('F - Y') }}</strong>
                                 </h4>
-                                <div id="plebitis_column" data-column="{{ $infeksiColumn }}"></div>
-                                <div id="plebitis_column"></div>
+                                <div id="column_data" data-column="{{ optional($infeksiColumn)['dataSeries'] }}"
+                                    data-column-label="{{ optional($infeksiColumn)['labelSeries'] }}"></div>
+                                <div id="plebitis_column">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -68,7 +122,10 @@
     </script>
     <script type="text/javascript">
         let splineData = $('#spline_data').attr('data-spline');
+        let splineLabel = $('#spline_data').attr('data-spline-label');
         let splineDataParse = JSON.parse(splineData);
+        let splineLabelParse = JSON.parse(splineLabel);
+        let splineLabelSeries = splineLabelParse.map(currentValue => Object.values(currentValue)[0]);
         let splineDataSeries = [];
         let splineSeries = Object.entries(splineDataParse).forEach((item, key) => {
             splineDataSeries.push({
@@ -89,7 +146,6 @@
             dataLabels: {
                 enabled: true,
                 formatter: function(val, opts) {
-                    console.log(opts)
                     return val;
                 }
             },
@@ -98,7 +154,7 @@
             },
             xaxis: {
                 type: 'text',
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agus', 'Sept', 'Okt', 'Nov', 'Des'],
+                categories: splineLabelSeries.flat(),
             },
             yaxis: {
                 title: {
@@ -155,31 +211,39 @@
         // var chart = new ApexCharts(document.querySelector("#chart_pie"), pie_options);
         // chart.render();
 
-        let columnData = $('#plebitis_column').attr('data-column');
+        let columnData = $('#column_data').attr('data-column');
+        let columnLabel = $('#column_data').attr('data-column-label');
         let columnDataParse = JSON.parse(columnData);
+        let columnLabelParse = JSON.parse(columnLabel);
         let columnDataSeries = [];
-        let columnSeries = Object.entries(columnDataParse.infeksi).forEach((item, key) => {
-            columnDataSeries.push({
+        let dataToArray = Object.entries(columnDataParse)
+        let columnSeries = dataToArray.map((item, key) => {
+            return {
                 name: item[0],
-                data: [
-                    item[1]
-                ]
-            })
+                data: Object
+                    .entries(item[1])
+                    .map((val, key) => val[1]),
+            }
         })
-        let columnCategories = [columnDataParse.bulan]
+        console.log(dataToArray)
+        let columnLabelSeries = Object
+            .entries(dataToArray[0][1])
+            .map((val, key) => val[0])
+        console.log(columnLabelSeries)
+        // throw new Error('tset');
 
         var plebitis_column_options = {
-            series: columnDataSeries,
+            series: columnSeries,
             chart: {
                 type: 'bar',
                 height: 350,
-                fontSize: '14px',
+                fontSize: '12px',
                 fontFamily: 'Inter',
             },
             plotOptions: {
                 bar: {
                     horizontal: false,
-                    columnWidth: '55%',
+                    columnWidth: '80%',
                     endingShape: 'rounded'
                 },
             },
@@ -195,7 +259,7 @@
                 colors: ['transparent']
             },
             xaxis: {
-                categories: columnCategories,
+                categories: columnLabelSeries,
             },
             yaxis: {
                 title: {

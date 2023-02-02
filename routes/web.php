@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\DashboardInsidenController;
 use App\Http\Controllers\DashboardMutuController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InsidenController;
 use App\Http\Controllers\InsidenHistoryController;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
-Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/', [DashboardInsidenController::class, 'index'])->name('home');
 
 // Insiden Route
 Route::get('insiden/data', [InsidenController::class, 'data'])->name('insiden.data');
@@ -35,3 +37,4 @@ Route::get('history/insiden-view', [InsidenHistoryController::class, 'index'])->
 
 // Mutu
 Route::get('mutu/dashboard', [DashboardMutuController::class, 'index'])->name('mutu.dashboard');
+Route::post('insiden/dashboard', [DashboardInsidenController::class, 'showChart'])->name('insiden.dashboard');
