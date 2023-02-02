@@ -11,12 +11,13 @@ class DashboardMutuController extends Controller
 {
     public function index()
     {
-        $initSheet = new INMMutuService();
-        $initSheet->setRange('2023!A:Z');
-        $sheet = $initSheet->read();
+        // $initSheet = new INMMutuService();
+        // $initSheet->setRange('2023!A:Z');
+        // $sheet = $initSheet->read();
 
-        return response()->json($sheet);
+        // return response()->json($sheet);
+        $params = '';
 
-        // return view('mutu.index');
+        return view('mutu.index', compact('params'));
     }
 }

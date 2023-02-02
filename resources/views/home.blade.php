@@ -9,7 +9,7 @@
                             <button class="accordion-button d-inline-flex" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"
                                 style="width: 95%">
-                                Dashboard Insiden Infeksi PPI
+                                Dashboard Insiden Infeksi PPI RS Graha Sehat
                             </button>
                             <a href="{{ route('home') }}" class="cs-btn-accordion text-secondary">
                                 <i class="fas fa-undo-alt"></i>
