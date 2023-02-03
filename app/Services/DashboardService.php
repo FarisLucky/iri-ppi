@@ -11,58 +11,9 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardService
 {
-
     public function __construct()
     {
         DB::statement("SET SQL_MODE=''");
-    }
-
-    public function pie(Request $request)
-    {
-        $startDate = date('Y-m-01');
-        $endDate = date('Y-m-t');
-
-        if (request()->has('filter_by_month') != null || request()->has('filter_by_year') != null) {
-            $month = request()->input('filter_by_month');
-            $year = request()->input('filter_by_year');
-            $startDate = date('Y-m-01', strtotime("$year-$month"));
-            $endDate = date('Y-m-t', strtotime("$year-$month"));
-        }
-
-        $infeksiusType = [
-            'PLEBITIS-YA',
-            'ISK-YA',
-            'IDO-YA',
-        ];
-
-        $lmInfusInMonth = Insiden::select(DB::raw('SUM(LMINFUS) as ttl_lminfus'))
-            ->whereBetween('TANGGAL', [$startDate, $endDate])
-            ->pluck('ttl_lminfus')
-            ->first();
-
-        $jmlPasienOperasi = Insiden::select('ID')
-            ->whereBetween('TANGGAL', [$startDate, $endDate])
-            ->where('IDO', 'YA')
-            ->count();
-
-        $result = collect();
-        foreach ($infeksiusType as $infeksi) {
-            $explodeKey = explode('-', $infeksi); // => [0]PLEBISTIS, [1]YA
-            $keyWhere = $explodeKey[0];
-            $valWhere = $explodeKey[1];
-
-            $getInfeksi = Insiden::select('ID')
-                ->whereBetween('TANGGAL', [$startDate, $endDate])
-                ->where($keyWhere, $valWhere)
-                ->count();
-
-            $functionName = strtolower($keyWhere);
-            $resultInfeksi = PerhitunganService::$functionName($getInfeksi, $lmInfusInMonth);
-
-            $result->put($infeksi, round($resultInfeksi, PHP_ROUND_HALF_UP));
-        }
-
-        return $result->toJson();
     }
 
     public function spline($params)
@@ -147,20 +98,16 @@ class DashboardService
                 ->get();
 
             $getInfeksi = Insiden::select(
+                DB::raw('COUNT(ID) as ttl'),
                 DB::raw('RUANGAN as ruangan'),
                 DB::raw('MONTH(TANGGAL) as bulan'),
             )
-                ->when($tipeInfeksi == 'IDO', function ($query) {
-                    $query->byIdo(); // scopeModel
-                })
-                ->when(in_array($tipeInfeksi, ['ISK', 'PLEBITIS']), function ($query) use ($tipeInfeksi) {
-                    $query->byNonIdo() // scopeModel
-                        ->where($tipeInfeksi, 'YA');
-                })
+                ->where($tipeInfeksi, 'YA')
                 ->whereBetween('TANGGAL', [$startDate, $endDate])
                 ->groupBy('ruangan', 'bulan')
                 ->get();
 
+            // Create Label
             $subMonth = Carbon::createFromFormat('Y-m', $now)->diffInMonths($startDate);
             $maxMonth = $now;
             $labelSeries = [];
@@ -174,9 +121,11 @@ class DashboardService
 
             $groupByRuanganAndBulan = $groupByRuangan->map->groupBy('bulan');
 
+            // $groupByRuanganAndBulan->dd();
+
             $function = strtolower($tipeInfeksi);
 
-            $infeksi = $groupByRuanganAndBulan->transform(function ($item) use ($sumLMInfus, $labelSeries, $function) {
+            $groupByRuanganAndBulan->transform(function ($item) use ($sumLMInfus, $labelSeries, $function) {
                 $result = [];
                 foreach ($labelSeries as $keyLabel => $value) {
                     if (!$item->has($keyLabel)) {
@@ -195,7 +144,7 @@ class DashboardService
             });
 
             $result = [
-                'dataSeries' => $infeksi->toJson(),
+                'dataSeries' => $groupByRuanganAndBulan->toJson(),
                 'labelSeries' => collect($labelSeries)->toJson(),
             ];
 
