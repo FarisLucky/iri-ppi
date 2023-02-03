@@ -78,21 +78,15 @@ class DashboardService
                 DB::raw('MONTH(TANGGAL) as bulan')
             )
                 ->when($inputInfeksi == 'IDO', function ($query) {
-                    $query->addSelect(
-                        DB::raw('COUNT(ID) as ttl')
-                    )->where(function ($query) {
-                        $query->where('IDO', 'YA')
-                            ->OrWhere('IDO', 'TIDAK');
-                    });
+                    $query->byIdo(); // scopeModel
                 })
                 ->when(in_array($inputInfeksi, ['ISK', 'PLEBITIS']), function ($query) use ($inputInfeksi) {
-                    $query->addSelect(
-                        DB::raw('SUM(LMINFUS) as ttl')
-                    );
+                    $query->byNonIdo(); // scopeModel
                 })
                 ->whereBetween('TANGGAL', [$startDate, $endDate])
                 ->groupBy('bulan')
                 ->get();
+
             $getInfeksi = Insiden::select(
                 DB::raw('COUNT(ID) as ttl'),
                 DB::raw('MONTH(TANGGAL) as bulan')
@@ -143,17 +137,10 @@ class DashboardService
                 DB::raw('MONTH(TANGGAL) as bulan'),
             )
                 ->when($tipeInfeksi == 'IDO', function ($query) {
-                    $query->addSelect(
-                        DB::raw('COUNT(ID) as ttl') // jumlah pasien ido 1 bulan operasi
-                    )->where(function ($query) {
-                        $query->where('IDO', 'YA')
-                            ->OrWhere('IDO', 'TIDAK');
-                    });
+                    $query->byIdo(); // scopeModel
                 })
                 ->when(in_array($tipeInfeksi, ['ISK', 'PLEBITIS']), function ($query) use ($tipeInfeksi) {
-                    $query->addSelect(
-                        DB::raw('SUM(LMINFUS) as ttl') // jumlah lminfus 1 bulan
-                    );
+                    $query->byNonIdo(); // scopeModel
                 })
                 ->whereBetween('TANGGAL', [$startDate, $endDate])
                 ->groupBy('ruangan', 'bulan')
@@ -164,17 +151,11 @@ class DashboardService
                 DB::raw('MONTH(TANGGAL) as bulan'),
             )
                 ->when($tipeInfeksi == 'IDO', function ($query) {
-                    $query->addSelect(
-                        DB::raw('COUNT(ID) as ttl')
-                    )->where(function ($query) {
-                        $query->where('IDO', 'YA')
-                            ->OrWhere('IDO', 'TIDAK');
-                    });
+                    $query->byIdo(); // scopeModel
                 })
                 ->when(in_array($tipeInfeksi, ['ISK', 'PLEBITIS']), function ($query) use ($tipeInfeksi) {
-                    $query->addSelect(
-                        DB::raw('SUM(LMINFUS) as ttl')
-                    )->where($tipeInfeksi, 'YA');
+                    $query->byNonIdo() // scopeModel
+                        ->where($tipeInfeksi, 'YA');
                 })
                 ->whereBetween('TANGGAL', [$startDate, $endDate])
                 ->groupBy('ruangan', 'bulan')

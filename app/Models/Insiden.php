@@ -49,4 +49,20 @@ class Insiden extends Model
         return $query->join('m_pasien', 'm_pasien.MR', '=', 'ppi.MR')
             ->addSelect('m_pasien.NAMA as nama');
     }
+
+    public function scopeByIdo($query)
+    {
+        return $query->addSelect(
+            DB::raw('COUNT(ID) as ttl') // jumlah pasien ido 1 bulan operasi
+        )->where(function ($query) {
+            $query->where('IDO', 'YA')
+                ->OrWhere('IDO', 'TIDAK');
+        });
+    }
+    public function scopeByNonIdo($query)
+    {
+        return $query->addSelect(
+            DB::raw('SUM(LMINFUS) as ttl') // jumlah lminfus 1 bulan
+        );
+    }
 }
