@@ -26,13 +26,21 @@ class DashboardInsidenController extends Controller
             $params['filter_year'] = $request->filter_year;
         }
 
+        if ($request->has('filter_month')) {
+            $params['filter_month'] = $request->filter_month;
+        }
+
         if ($request->has('filter_infeksi')) {
             $params['filter_infeksi'] = $request->filter_infeksi;
         }
 
-        $dashboard = new DashboardService();
-        $infeksiColumn = $dashboard->column($params);
-        $infeksiSplineChart = $dashboard->spline($params);
+        try {
+            $dashboard = new DashboardService();
+            $infeksiColumn = $dashboard->column($params);
+            $infeksiSplineChart = $dashboard->spline($params);
+        } catch (\Throwable $th) {
+            return redirect()->route('home')->with(['error' => $th->getMessage()])->withInput();
+        }
 
         return view('home', compact('infeksiColumn', 'infeksiSplineChart', 'params'));
     }

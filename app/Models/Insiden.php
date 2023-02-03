@@ -59,10 +59,16 @@ class Insiden extends Model
                 ->OrWhere('IDO', 'TIDAK');
         });
     }
+
     public function scopeByNonIdo($query)
     {
         return $query->addSelect(
             DB::raw('SUM(LMINFUS) as ttl') // jumlah lminfus 1 bulan
         );
+    }
+
+    public function scopeVerified($query)
+    {
+        return $query->where('verified', self::VERIFIED);
     }
 }

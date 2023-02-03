@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Insiden;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -18,66 +19,65 @@ class DashboardService
 
     public function spline($params)
     {
-        try {
-            $inputYear = $params['filter_year'];
-            $inputInfeksi = $params['filter_infeksi'];
+        $inputYear = $params['filter_year'];
+        $inputInfeksi = $params['filter_infeksi'];
 
-            $startDate = date('Y-01-01', strtotime($inputYear));
-            $endDate = date('Y-12-t', strtotime($inputYear));
+        $startDate = date('Y-01-01', mktime(0, 0, 0, 1, 1, $inputYear));
+        $endDate = date('Y-12-t', strtotime($startDate));
 
-            $sumLminfus = Insiden::select(
-                DB::raw('MONTH(TANGGAL) as bulan')
-            )
-                ->when($inputInfeksi == 'IDO', function ($query) {
-                    $query->byIdo(); // scopeModel
-                })
-                ->when(in_array($inputInfeksi, ['ISK', 'PLEBITIS']), function ($query) use ($inputInfeksi) {
-                    $query->byNonIdo(); // scopeModel
-                })
-                ->whereBetween('TANGGAL', [$startDate, $endDate])
-                ->groupBy('bulan')
-                ->get();
+        $sumLminfus = Insiden::select(
+            DB::raw('MONTH(TANGGAL) as bulan')
+        )
+            ->when($inputInfeksi == 'IDO', function ($query) {
+                $query->byIdo(); // scopeModel
+            })
+            ->when(in_array($inputInfeksi, ['ISK', 'PLEBITIS']), function ($query) use ($inputInfeksi) {
+                $query->byNonIdo(); // scopeModel
+            })
+            ->whereBetween('TANGGAL', [$startDate, $endDate])
+            ->groupBy('bulan')
+            ->get();
 
-            $getInfeksi = Insiden::select(
-                DB::raw('COUNT(ID) as ttl'),
-                DB::raw('MONTH(TANGGAL) as bulan')
-            )
-                ->where($inputInfeksi, 'YA')
-                ->whereBetween('TANGGAL', [$startDate, $endDate])
-                ->groupBy('bulan')
-                ->get();
+        $getInfeksi = Insiden::select(
+            DB::raw('COUNT(ID) as ttl'),
+            DB::raw('MONTH(TANGGAL) as bulan')
+        )
+            ->where($inputInfeksi, 'YA')
+            ->whereBetween('TANGGAL', [$startDate, $endDate])
+            ->groupBy('bulan')
+            ->get();
 
-            $functionName = strtolower($inputInfeksi);
-            $result = $getInfeksi
-                ->groupBy('bulan')
-                ->map(function ($item, $key) use ($sumLminfus, $functionName) {
-                    $data = $item->pluck('ttl')->first();
-                    $lmInfus = $sumLminfus->where('bulan', $key)->first()->ttl;
-                    $plebitis = PerhitunganService::$functionName($data, $lmInfus);
-                    return [
-                        date('F', mktime(0, 0, 0, $key, 1)) => round($plebitis, PHP_ROUND_HALF_UP)
-                    ];
-                })
-                ->values();
-            $result = Arr::collapse($result);
-
-            $result = [
-                'dataSeries' => json_encode(array_values($result)),
-                'labelSeries' => json_encode(array_keys($result)),
-                'type' => json_encode(strtoupper($inputInfeksi))
-            ];
-
-            return $result;
-        } catch (\Throwable $th) {
-
-            dd($th->getMessage());
+        if ($getInfeksi->isEmpty()) {
+            throw new Exception('TIDAK ADA DATA');
         }
+
+        $functionName = strtolower($inputInfeksi);
+        $result = $getInfeksi
+            ->groupBy('bulan')
+            ->map(function ($item, $key) use ($sumLminfus, $functionName) {
+                $data = $item->pluck('ttl')->first();
+                $lmInfus = $sumLminfus->where('bulan', $key)->first()->ttl;
+                $plebitis = PerhitunganService::$functionName($data, $lmInfus);
+                return [
+                    date('F', mktime(0, 0, 0, $key, 1)) => round($plebitis, PHP_ROUND_HALF_UP)
+                ];
+            })
+            ->values();
+        $result = Arr::collapse($result);
+
+        $result = [
+            'dataSeries' => json_encode(array_values($result)),
+            'labelSeries' => json_encode(array_keys($result)),
+            'type' => json_encode(strtoupper($inputInfeksi))
+        ];
+
+        return $result;
     }
 
     public function column($params)
     {
         try {
-            $now = date('Y-m', strtotime($params['filter_year'])); // Bulan ini
+            $now = date('Y-m', mktime(0, 0, 0, $params['filter_month'], 1, $params['filter_year'])); // Bulan ini
             $tipeInfeksi = $params['filter_infeksi'];
 
             $startDate = date('Y-m-01', strtotime("-2 month", strtotime($now))); // 3 bulan sebelumnya

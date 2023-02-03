@@ -25,6 +25,7 @@ class DashboardInsidenRequest extends FormRequest
     {
         return [
             'filter_year' => 'required',
+            'filter_month' => 'required',
             'filter_infeksi' => 'required',
         ];
     }

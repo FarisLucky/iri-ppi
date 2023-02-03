@@ -1,6 +1,11 @@
 @extends('layouts.app')
 @section('content')
     <div class="container-fluid">
+        @if (session()->get('error'))
+            <div class="alert alert-danger py-2 justify-content-center">
+                <h3>{{ session()->get('error') }}</h3>
+            </div>
+        @endif
         <div class="row justify-content-center">
             <div class="col-md-12 mb-2">
                 <div class="accordion" id="accordionFilter">
@@ -40,6 +45,23 @@
                                                 @endfor
                                             </select>
                                             @error('filter_year')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-2 mb-1 pr-0">
+                                            <label for="filter_month">Bulan</label>
+                                            <select name="filter_month" id="filter_month" class="form-control">
+                                                <option value="">Pilih Bulan</option>
+                                                @php
+                                                    $maxMonth = 12;
+                                                @endphp
+                                                @for ($y = 1; $y <= $maxMonth; $y++)
+                                                    <option value="{{ $y }}"
+                                                        {{ in_array($y, [optional($params)['filter_month'], old('filter_month')]) ? 'selected' : '' }}>
+                                                        {{ date('F', mktime(0, 0, 0, $y, 1)) }}</option>
+                                                @endfor
+                                            </select>
+                                            @error('filter_month')
                                                 <span class="text-danger">{{ $message }}</span>
                                             @enderror
                                         </div>
@@ -88,7 +110,7 @@
                             <div class="card-body">
                                 <h4 class="border-bottom pb-1">Insiden Rate
                                     <strong>{{ optional($params)['filter_infeksi'] }}</strong> Tahun
-                                    <strong>{{ now()->format('Y') }}</strong>
+                                    <strong>{{ optional($params)['filter_year'] }}</strong>
                                 </h4>
                                 <div id="spline_data" data-spline="{{ optional($infeksiSplineChart)['dataSeries'] }}"
                                     data-spline-label="{{ optional($infeksiSplineChart)['labelSeries'] }}"
@@ -102,7 +124,7 @@
                             <div class="card-body">
                                 <h4 class="border-bottom pb-1">Insiden Rate
                                     <strong>{{ optional($params)['filter_infeksi'] }}</strong> Tiap Unit Pada
-                                    <strong>{{ now()->format('F - Y') }}</strong>
+                                    <strong>{{ (!is_null(optional($params)['filter_month']) ? date('F', mktime(0, 0, 0, $params['filter_month'], 1)) : '') . ' - ' . optional($params)['filter_year'] }}</strong>
                                 </h4>
                                 <div id="column_data" data-column="{{ optional($infeksiColumn)['dataSeries'] }}"
                                     data-column-label="{{ optional($infeksiColumn)['labelSeries'] }}"></div>
