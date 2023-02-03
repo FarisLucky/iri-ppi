@@ -74,45 +74,52 @@ class DashboardService
             $startDate = date('Y-01-01', strtotime($inputYear));
             $endDate = date('Y-12-t', strtotime($inputYear));
 
-            $sumLmInfus = Insiden::select(
-                DB::raw('SUM(LMINFUS) as sum_lminfus'),
-                // DB::raw('RUANGAN as ruangan'),
+            $sumLminfus = Insiden::select(
                 DB::raw('MONTH(TANGGAL) as bulan')
             )
+                ->when($inputInfeksi == 'IDO', function ($query) {
+                    $query->addSelect(
+                        DB::raw('COUNT(ID) as ttl')
+                    )->where(function ($query) {
+                        $query->where('IDO', 'YA')
+                            ->OrWhere('IDO', 'TIDAK');
+                    });
+                })
+                ->when(in_array($inputInfeksi, ['ISK', 'PLEBITIS']), function ($query) use ($inputInfeksi) {
+                    $query->addSelect(
+                        DB::raw('SUM(LMINFUS) as ttl')
+                    );
+                })
                 ->whereBetween('TANGGAL', [$startDate, $endDate])
-                ->where($inputInfeksi, 'YA')
                 ->groupBy('bulan')
                 ->get();
-
             $getInfeksi = Insiden::select(
-                DB::raw('COUNT(ID) as jumlah_infeksi'),
-                // DB::raw('RUANGAN as ruangan'),
+                DB::raw('COUNT(ID) as ttl'),
                 DB::raw('MONTH(TANGGAL) as bulan')
             )
-                ->whereBetween('TANGGAL', [$startDate, $endDate])
                 ->where($inputInfeksi, 'YA')
+                ->whereBetween('TANGGAL', [$startDate, $endDate])
                 ->groupBy('bulan')
                 ->get();
 
-            $groupByRuangan = $getInfeksi->groupBy('ruangan');
-            $groupByRuanganAndBulan = $groupByRuangan->map->groupBy('bulan');
-            $ruanganAndInsiden = $groupByRuanganAndBulan->map->transform(function ($item) use ($sumLmInfus) {
-                $lmInfus = $sumLmInfus->where('ruangan', $item[0]['ruangan'])->first()->sum_lminfus;
-                $hitung = PerhitunganService::plebitis($item[0]['jumlah_infeksi'], $lmInfus);
-                return round($hitung, PHP_ROUND_HALF_UP);
-            });
-
-            $maxMonth = 12;
-            $labelSeries = [];
-            for ($i = 1; $i <= $maxMonth; $i++) {
-                array_push($labelSeries, [
-                    $i => date('F', mktime(0, 0, 0, $i, 1)) // ['1' => 'January']
-                ]);
-            }
+            $functionName = strtolower($inputInfeksi);
+            $result = $getInfeksi
+                ->groupBy('bulan')
+                ->map(function ($item, $key) use ($sumLminfus, $functionName) {
+                    $data = $item->pluck('ttl')->first();
+                    $lmInfus = $sumLminfus->where('bulan', $key)->first()->ttl;
+                    $plebitis = PerhitunganService::$functionName($data, $lmInfus);
+                    return [
+                        date('F', mktime(0, 0, 0, $key, 1)) => round($plebitis, PHP_ROUND_HALF_UP)
+                    ];
+                })
+                ->values();
+            $result = Arr::collapse($result);
 
             $result = [
-                'dataSeries' => $ruanganAndInsiden->toJson(),
-                'labelSeries' => collect($labelSeries)->toJson(),
+                'dataSeries' => json_encode(array_values($result)),
+                'labelSeries' => json_encode(array_keys($result)),
+                'type' => json_encode(strtoupper($inputInfeksi))
             ];
 
             return $result;
@@ -132,36 +139,42 @@ class DashboardService
             $endDate = date('Y-m-t', strtotime($now)); // bulan ini
 
             $sumLMInfus = Insiden::select(
-                DB::raw('SUM(LMINFUS) as sum_lminfus'),
                 DB::raw('RUANGAN as ruangan'),
                 DB::raw('MONTH(TANGGAL) as bulan'),
             )
                 ->when($tipeInfeksi == 'IDO', function ($query) {
-                    $query->where(function ($query) {
+                    $query->addSelect(
+                        DB::raw('COUNT(ID) as ttl') // jumlah pasien ido 1 bulan operasi
+                    )->where(function ($query) {
                         $query->where('IDO', 'YA')
                             ->OrWhere('IDO', 'TIDAK');
                     });
                 })
                 ->when(in_array($tipeInfeksi, ['ISK', 'PLEBITIS']), function ($query) use ($tipeInfeksi) {
-                    $query->where($tipeInfeksi, 'YA');
+                    $query->addSelect(
+                        DB::raw('SUM(LMINFUS) as ttl') // jumlah lminfus 1 bulan
+                    );
                 })
                 ->whereBetween('TANGGAL', [$startDate, $endDate])
                 ->groupBy('ruangan', 'bulan')
                 ->get();
 
             $getInfeksi = Insiden::select(
-                DB::raw('COUNT(id) as jumlah_infeksi'),
                 DB::raw('RUANGAN as ruangan'),
                 DB::raw('MONTH(TANGGAL) as bulan'),
             )
                 ->when($tipeInfeksi == 'IDO', function ($query) {
-                    $query->where(function ($query) {
+                    $query->addSelect(
+                        DB::raw('COUNT(ID) as ttl')
+                    )->where(function ($query) {
                         $query->where('IDO', 'YA')
                             ->OrWhere('IDO', 'TIDAK');
                     });
                 })
                 ->when(in_array($tipeInfeksi, ['ISK', 'PLEBITIS']), function ($query) use ($tipeInfeksi) {
-                    $query->where($tipeInfeksi, 'YA');
+                    $query->addSelect(
+                        DB::raw('SUM(LMINFUS) as ttl')
+                    )->where($tipeInfeksi, 'YA');
                 })
                 ->whereBetween('TANGGAL', [$startDate, $endDate])
                 ->groupBy('ruangan', 'bulan')
@@ -190,8 +203,8 @@ class DashboardService
                     } else {
 
                         $firstItem = $item->get($keyLabel)->first();
-                        $lmInfus = $sumLMInfus->where('ruangan', $firstItem['ruangan'])->first()->sum_lminfus;
-                        $hitung = PerhitunganService::$function($firstItem['jumlah_infeksi'], $lmInfus);
+                        $lmInfus = $sumLMInfus->where('ruangan', $firstItem['ruangan'])->first()->ttl;
+                        $hitung = PerhitunganService::$function($firstItem['ttl'], $lmInfus);
 
                         $result[$value] = round($hitung, PHP_ROUND_HALF_UP);
                     }

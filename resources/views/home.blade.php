@@ -91,7 +91,8 @@
                                     <strong>{{ now()->format('Y') }}</strong>
                                 </h4>
                                 <div id="spline_data" data-spline="{{ optional($infeksiSplineChart)['dataSeries'] }}"
-                                    data-spline-label="{{ optional($infeksiSplineChart)['labelSeries'] }}"></div>
+                                    data-spline-label="{{ optional($infeksiSplineChart)['labelSeries'] }}"
+                                    data-spline-type="{{ optional($infeksiSplineChart)['type'] }}"></div>
                                 <div id="chart_spline"></div>
                             </div>
                         </div>
@@ -125,19 +126,15 @@
     <script type="text/javascript">
         let splineData = $('#spline_data').attr('data-spline');
         let splineLabel = $('#spline_data').attr('data-spline-label');
-        let splineDataParse = JSON.parse(splineData);
-        let splineLabelParse = JSON.parse(splineLabel);
-        let splineLabelSeries = splineLabelParse.map(currentValue => Object.values(currentValue)[0]);
-        let splineDataSeries = [];
-        let splineSeries = Object.entries(splineDataParse).forEach((item, key) => {
-            splineDataSeries.push({
-                name: item[0],
-                data: Object.values(item[1])
-            })
-        })
+        let splineType = $('#spline_data').attr('data-spline-type');
+        let dataSpline = JSON.parse(splineData);
+        let labelSpline = JSON.parse(splineLabel);
 
         var options = {
-            series: splineDataSeries,
+            series: [{
+                name: splineType,
+                data: dataSpline
+            }],
             colors: ['#9b5de5', '#2a9d8f', '#ff6c0e', '#9ef01a', '#f15bb5', '#ef233c', '#f4acb7', '#84a59d', '#7678ed'],
             chart: {
                 height: 350,
@@ -156,11 +153,18 @@
             },
             xaxis: {
                 type: 'text',
-                categories: splineLabelSeries.flat(),
+                categories: labelSpline,
             },
             yaxis: {
                 title: {
                     text: 'presentase per mille',
+                }
+            },
+            tooltip: {
+                y: {
+                    formatter: function(val) {
+                        return val + " &permil;"
+                    }
                 }
             }
         };
