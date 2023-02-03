@@ -76,22 +76,22 @@ class DashboardService
 
             $sumLmInfus = Insiden::select(
                 DB::raw('SUM(LMINFUS) as sum_lminfus'),
-                DB::raw('RUANGAN as ruangan'),
+                // DB::raw('RUANGAN as ruangan'),
                 DB::raw('MONTH(TANGGAL) as bulan')
             )
                 ->whereBetween('TANGGAL', [$startDate, $endDate])
                 ->where($inputInfeksi, 'YA')
-                ->groupBy('ruangan', 'bulan')
+                ->groupBy('bulan')
                 ->get();
 
             $getInfeksi = Insiden::select(
                 DB::raw('COUNT(ID) as jumlah_infeksi'),
-                DB::raw('RUANGAN as ruangan'),
+                // DB::raw('RUANGAN as ruangan'),
                 DB::raw('MONTH(TANGGAL) as bulan')
             )
                 ->whereBetween('TANGGAL', [$startDate, $endDate])
                 ->where($inputInfeksi, 'YA')
-                ->groupBy('ruangan', 'bulan')
+                ->groupBy('bulan')
                 ->get();
 
             $groupByRuangan = $getInfeksi->groupBy('ruangan');

@@ -35,7 +35,7 @@
                                                 @endphp
                                                 @for ($y = $max; $y >= $min; $y--)
                                                     <option value="{{ $y }}"
-                                                        {{ $y == optional($params)['filter_year'] ? 'selected' : '' }}>
+                                                        {{ in_array($y, [optional($params)['filter_year'], old('filter_year')]) ? 'selected' : '' }}>
                                                         {{ $y }}</option>
                                                 @endfor
                                             </select>
@@ -52,7 +52,7 @@
                                                 @endphp
                                                 @foreach ($jenisInfeksi as $jenis)
                                                     <option value="{{ $jenis }}"
-                                                        {{ $jenis == optional($params)['filter_infeksi'] ? 'selected' : '' }}>
+                                                        {{ in_array($jenis, [optional($params)['filter_infeksi'], old('filter_infeksi')]) ? 'selected' : '' }}>
                                                         {{ $jenis }}</option>
                                                 @endforeach
                                             </select>
@@ -86,7 +86,8 @@
                     <div class="col-md-12 {{ $showChart ? '' : 'd-none' }}">
                         <div class="card">
                             <div class="card-body">
-                                <h4 class="border-bottom pb-1">Insiden Rate <strong>PLEBITIS</strong> Tahun
+                                <h4 class="border-bottom pb-1">Insiden Rate
+                                    <strong>{{ optional($params)['filter_infeksi'] }}</strong> Tahun
                                     <strong>{{ now()->format('Y') }}</strong>
                                 </h4>
                                 <div id="spline_data" data-spline="{{ optional($infeksiSplineChart)['dataSeries'] }}"
@@ -98,7 +99,8 @@
                     <div class="col-md-12 {{ $showChart ? '' : 'd-none' }}">
                         <div class="card">
                             <div class="card-body">
-                                <h4 class="border-bottom pb-1">Insiden Rate <strong>PLEBITIS</strong> Tiap Unit Pada
+                                <h4 class="border-bottom pb-1">Insiden Rate
+                                    <strong>{{ optional($params)['filter_infeksi'] }}</strong> Tiap Unit Pada
                                     <strong>{{ now()->format('F - Y') }}</strong>
                                 </h4>
                                 <div id="column_data" data-column="{{ optional($infeksiColumn)['dataSeries'] }}"

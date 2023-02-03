@@ -44,15 +44,15 @@
                                                 <span class="text-danger">{{ $message }}</span>
                                             @enderror
                                         </div>
+                                        @php
+                                            $indikators = config('sheets.spreadsheet_id');
+                                        @endphp
                                         <div class="col-md-2 mb-1 pr-0">
                                             <label for="filter_infeksi">Jenis Indikator</label>
                                             <select name="filter_infeksi" id="filter_infeksi" class="form-control">
                                                 <option value="">Pilih Jenis Indikator</option>
-                                                @php
-                                                    $indikators = config('sheets.jenis_indikator');
-                                                @endphp
-                                                @foreach ($indikators as $d)
-                                                    <option value="{{ $d }}"> {{ $d }}</option>
+                                                @foreach ($indikators as $key => $d)
+                                                    <option value="{{ $d }}"> {{ $key }}</option>
                                                 @endforeach
                                             </select>
                                             @error('filter_infeksi')
@@ -63,11 +63,8 @@
                                             <label for="filter_infeksi">Sub Indikator</label>
                                             <select name="filter_infeksi" id="filter_infeksi" class="form-control">
                                                 <option value="">Pilih Sub Indikator</option>
-                                                @php
-                                                    $indikators = config('sheets.jenis_indikator');
-                                                @endphp
-                                                @foreach ($indikators as $d)
-                                                    <option value="{{ $d }}"> {{ $d }}</option>
+                                                @foreach ($subIndikator as $d)
+                                                    <option value="{{ $d['header'] }}"> {{ $d['header'] }}</option>
                                                 @endforeach
                                             </select>
                                             @error('filter_infeksi')
@@ -102,6 +99,10 @@
     <script type="text/javascript">
         $(function() {
             hideLoader()
+            $('#filter_infeksi').on('change', function(e) {
+                e.preventDefault();
+                alert('test')
+            });
         });
     </script>
     <script>
