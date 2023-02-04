@@ -14,5 +14,10 @@ return [
         'INM' => 'INM JANUARI 2023!B:C',
         'IMP-RS' => 'INM JANUARY 2023',
         'IMP-UNIT' => '',
+    ],
+    "file" => [
+        'INM' => 'inm',
+        'IMP-RS' => 'imprs',
+        'IMP-UNIT' => 'impunit',
     ]
 ];

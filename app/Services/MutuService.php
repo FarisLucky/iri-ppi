@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class MutuService
 {
@@ -53,7 +54,9 @@ class MutuService
             $item->shift();
             $data->put(
                 $key,
-                $item
+                $item->map(function ($item) {
+                    return [$item => 'INM JANUARI 2023!'];
+                })
             );
             return $data;
         });
@@ -61,10 +64,15 @@ class MutuService
         return $indikators->values();
     }
 
-    public static function cacheIndikatorWithUnit()
+    public static function saveToDisk()
     {
-        return Cache::remember('indikatorWithUnit', 3600, function () {
-            return self::indikatorWithUnit();
-        });
+        return Storage::disk('public')->put('inm.json', self::indikatorWithUnit()->toJson(JSON_PRETTY_PRINT));
+    }
+
+    public static function perhitunganCell()
+    {
+        $initSheet = new INMMutuService();
+        $initSheet->setRange('INM JANUARI 2023!E12:AI12');
+        return $initSheet->read();
     }
 }

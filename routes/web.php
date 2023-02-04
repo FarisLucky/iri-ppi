@@ -38,3 +38,7 @@ Route::get('history/insiden-view', [InsidenHistoryController::class, 'index'])->
 // Mutu
 Route::get('mutu/dashboard', [DashboardMutuController::class, 'index'])->name('mutu.dashboard');
 Route::post('insiden/dashboard', [DashboardInsidenController::class, 'showChart'])->name('insiden.dashboard');
+
+// Mutu Process
+Route::get('mutu/baca/', [DashboardMutuController::class, 'baca'])->name('mutu.baca');
+Route::get('indikator/sub/', [DashboardMutuController::class, 'subIndikator'])->name('mutu.indikator.subIndikator');

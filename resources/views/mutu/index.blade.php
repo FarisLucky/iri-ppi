@@ -22,7 +22,7 @@
                         <div id="collapseOne" class="accordion-collapse collapse {{ $showChart ? '' : 'show' }}"
                             aria-labelledby="headingOne" data-bs-parent="#accordionFilter">
                             <div class="accordion-body">
-                                <form action="{{ route('insiden.dashboard') }}" method="POST">
+                                <form action="{{ route('mutu.dashboard') }}" method="POST">
                                     @csrf
                                     <div class="row align-items-end">
                                         <div class="col-md-2 mb-1 pr-0">
@@ -65,28 +65,25 @@
                                             $indikators = config('sheets.spreadsheet_id');
                                         @endphp
                                         <div class="col-md-2 mb-1 pr-0">
-                                            <label for="filter_infeksi">Jenis Indikator</label>
-                                            <select name="filter_infeksi" id="filter_infeksi" class="form-control">
+                                            <label for="filter_indikator">Jenis Indikator</label>
+                                            <div id="jenis_url" data-url="{{ route('mutu.indikator.subIndikator') }}">
+                                            </div>
+                                            <select name="filter_indikator" id="filter_indikator" class="form-control">
                                                 <option value="">Pilih Jenis Indikator</option>
                                                 @foreach ($indikators as $key => $d)
-                                                    <option value="{{ $d }}"> {{ $key }}</option>
+                                                    <option value="{{ $key }}"> {{ $key }}</option>
                                                 @endforeach
                                             </select>
-                                            @error('filter_infeksi')
+                                            @error('filter_indikator')
                                                 <span class="text-danger">{{ $message }}</span>
                                             @enderror
                                         </div>
                                         <div class="col-md-2 mb-1 pr-0">
-                                            <label for="filter_infeksi">Sub Indikator</label>
-                                            <select name="filter_infeksi" id="filter_infeksi" class="form-control">
+                                            <label for="filter_sub_indikator">Sub Indikator</label>
+                                            <select name="filter_sub_indikator" id="filter_sub_indikator"
+                                                class="form-control">
                                                 <option value="">Pilih Sub Indikator</option>
-                                                @foreach ($subIndikator as $d)
-                                                    <option value="{{ $d['header'] }}"> {{ $d['header'] }}</option>
-                                                @endforeach
                                             </select>
-                                            @error('filter_infeksi')
-                                                <span class="text-danger">{{ $message }}</span>
-                                            @enderror
                                         </div>
                                         <div class="mt-1">
                                             <button type="submit" class="btn btn-primary">Terapkan</button>
@@ -116,9 +113,43 @@
     <script type="text/javascript">
         $(function() {
             hideLoader()
-            $('#filter_infeksi').on('change', function(e) {
+            $('#filter_indikator').on('change', function(e) {
                 e.preventDefault();
-                alert('test')
+                showLoader()
+                let indikatorUrl = $('#jenis_url').attr('data-url')
+                let dataIndikator = {
+                    indikator: $(this).val()
+                }
+                if (dataIndikator.indikator == '') {
+                    $('#filter_sub_indikator')
+                        .empty()
+                        .append(new Option('Pilih Sub Indikator', ''))
+
+                    hideLoader()
+                    return;
+                }
+                $.ajax({
+                        type: "GET",
+                        url: indikatorUrl,
+                        data: dataIndikator,
+                        dataType: "JSON"
+                    })
+                    .done(resp => {
+                        let options = resp.data
+                        $('#filter_sub_indikator')
+
+                            .empty()
+                            .append(new Option('Pilih Sub Indikator', ''))
+
+                        options.forEach(sub => {
+                            $('#filter_sub_indikator').append(new Option(sub, sub))
+                        });
+                        hideLoader()
+                    })
+                    .fail(err => {
+                        hideLoader()
+                        console.log(err)
+                    });
             });
         });
     </script>
