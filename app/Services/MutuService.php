@@ -3,53 +3,68 @@
 namespace App\Services;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 
 class MutuService
 {
-    public static function getIndikator($jenis)
+    public static function getIndikator()
     {
         $initSheet = new INMMutuService();
         $initSheet->setRange(config('sheets.sub-indikator.INM'));
         return $initSheet->read();
     }
 
-    public static function indikatorWithUnit($jenis)
+    public static function indikator()
     {
-        $getIndikators = self::getIndikator($jenis);
+        return Cache::remember('indikator-rs', 3600, function () {
+            return self::getIndikator();
+        });
+    }
+
+    public static function indikatorWithUnit()
+    {
+        $getIndikators = self::indikator();
+
         $indikators = collect($getIndikators)->filter(function ($item) {
             return count($item) > 0 ? $item : null;
         })->map(function ($item) {
             return collect($item);
         }); // 2x loop
 
+        $indikators->shift(); // remove first element
+        // $indikators->dd();
+        $units = $indikators->filter(function ($item) {
+            return $item->get(0) == '';
+        });
+        $units = collect([]);
         $head = 0;
-        $ind = $indikators;
-        foreach ($indikators as $key => $indikator) { //3x loop
+        foreach ($indikators as $key => $indikator) {
             if ($indikator->get(0) == '') {
-                $unit = $ind->get($key)[1];
-                $ind->get($head)->add($unit);
-                $ind->forget($key);
+                $indikators->get($head)
+                    ->add($indikator->get(1));
+                $indikators->forget($key);
+                continue;
             }
-            if ($indikator->get(0) != '') {
-                $head = $key;
-            }
+            $head = $key;
         }
-        $jenis = $ind->map(function ($item) {
-            return $item->get(0);
+        $indikators->transform(function ($item) {
+            $data = collect();
+            $key = $item->get(0);
+            $item->shift();
+            $data->put(
+                $key,
+                $item
+            );
+            return $data;
         });
-        $ind->transform(function ($item) {
-            return $item->forget(0);
-        });
-        $subJenis = $jenis->map(function ($item, $key) use ($ind) {
-            $result = [];
-            $result['header'] = $item;
-            // $ind->forget($key);
-            $result['sub'] = $ind->get($key);
-            return $result;
-        });
-        $result = $subJenis->forget(0);
-        $result = $result->values();
 
-        return $result;
+        return $indikators->values();
+    }
+
+    public static function cacheIndikatorWithUnit()
+    {
+        return Cache::remember('indikatorWithUnit', 3600, function () {
+            return self::indikatorWithUnit();
+        });
     }
 }

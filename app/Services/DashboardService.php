@@ -35,6 +35,7 @@ class DashboardService
                 $query->byNonIdo(); // scopeModel
             })
             ->whereBetween('TANGGAL', [$startDate, $endDate])
+            ->verified()
             ->groupBy('bulan')
             ->get();
 
@@ -44,12 +45,9 @@ class DashboardService
         )
             ->where($inputInfeksi, 'YA')
             ->whereBetween('TANGGAL', [$startDate, $endDate])
+            ->verified()
             ->groupBy('bulan')
             ->get();
-
-        if ($getInfeksi->isEmpty()) {
-            throw new Exception('TIDAK ADA DATA');
-        }
 
         $functionName = strtolower($inputInfeksi);
         $result = $getInfeksi
@@ -63,6 +61,7 @@ class DashboardService
                 ];
             })
             ->values();
+
         $result = Arr::collapse($result);
 
         $result = [
@@ -76,82 +75,80 @@ class DashboardService
 
     public function column($params)
     {
-        try {
-            $now = date('Y-m', mktime(0, 0, 0, $params['filter_month'], 1, $params['filter_year'])); // Bulan ini
-            $tipeInfeksi = $params['filter_infeksi'];
+        $now = date('Y-m', mktime(0, 0, 0, $params['filter_month'], 1, $params['filter_year'])); // Bulan ini
+        $tipeInfeksi = $params['filter_infeksi'];
 
-            $startDate = date('Y-m-01', strtotime("-2 month", strtotime($now))); // 3 bulan sebelumnya
-            $endDate = date('Y-m-t', strtotime($now)); // bulan ini
+        $startDate = date('Y-m-01', strtotime("-2 month", strtotime($now))); // 3 bulan sebelumnya
+        $endDate = date('Y-m-t', strtotime($now)); // bulan ini
 
-            $sumLMInfus = Insiden::select(
-                DB::raw('RUANGAN as ruangan'),
-                DB::raw('MONTH(TANGGAL) as bulan'),
-            )
-                ->when($tipeInfeksi == 'IDO', function ($query) {
-                    $query->byIdo(); // scopeModel
-                })
-                ->when(in_array($tipeInfeksi, ['ISK', 'PLEBITIS']), function ($query) use ($tipeInfeksi) {
-                    $query->byNonIdo(); // scopeModel
-                })
-                ->whereBetween('TANGGAL', [$startDate, $endDate])
-                ->groupBy('ruangan', 'bulan')
-                ->get();
+        $sumLMInfus = Insiden::select(
+            DB::raw('RUANGAN as ruangan'),
+            DB::raw('MONTH(TANGGAL) as bulan'),
+        )
+            ->when($tipeInfeksi == 'IDO', function ($query) {
+                $query->byIdo(); // scopeModel
+            })
+            ->when(in_array($tipeInfeksi, ['ISK', 'PLEBITIS']), function ($query) use ($tipeInfeksi) {
+                $query->byNonIdo(); // scopeModel
+            })
+            ->whereBetween('TANGGAL', [$startDate, $endDate])
+            ->verified()
+            ->groupBy('ruangan', 'bulan')
+            ->get();
 
-            $getInfeksi = Insiden::select(
-                DB::raw('COUNT(ID) as ttl'),
-                DB::raw('RUANGAN as ruangan'),
-                DB::raw('MONTH(TANGGAL) as bulan'),
-            )
-                ->where($tipeInfeksi, 'YA')
-                ->whereBetween('TANGGAL', [$startDate, $endDate])
-                ->groupBy('ruangan', 'bulan')
-                ->get();
+        $getInfeksi = Insiden::select(
+            DB::raw('COUNT(ID) as ttl'),
+            DB::raw('RUANGAN as ruangan'),
+            DB::raw('MONTH(TANGGAL) as bulan'),
+        )
+            ->whereBetween('TANGGAL', [$startDate, $endDate])
+            ->where($tipeInfeksi, 'YA')
+            ->verified()
+            ->groupBy('ruangan', 'bulan')
+            ->get();
 
-            // Create Label
-            $subMonth = Carbon::createFromFormat('Y-m', $now)->diffInMonths($startDate);
-            $maxMonth = $now;
-            $labelSeries = [];
-            for ($i = $subMonth; $i >= 0; $i--) {
-                $month = Carbon::createFromFormat('Y-m', $now)->subMonths($i);
-                $labelSeries += [
-                    $month->month => date('F', mktime(0, 0, 0, $month->month, 1))
-                ]; // ['1' => 'January']
-            }
-            $groupByRuangan = $getInfeksi->groupBy('ruangan');
+        // dd($getInfeksi);
+        // Create Label
+        $subMonth = Carbon::createFromFormat('Y-m', $now)->diffInMonths($startDate);
+        $maxMonth = $now;
+        $labelSeries = [];
+        for ($i = $subMonth; $i >= 0; $i--) {
+            $month = Carbon::createFromFormat('Y-m', $now)->subMonths($i);
+            $labelSeries += [
+                $month->month => date('F', mktime(0, 0, 0, $month->month, 1))
+            ]; // ['1' => 'January']
+        }
+        $groupByRuangan = $getInfeksi->groupBy('ruangan');
 
-            $groupByRuanganAndBulan = $groupByRuangan->map->groupBy('bulan');
+        $groupByRuanganAndBulan = $groupByRuangan->map->groupBy('bulan');
 
-            // $groupByRuanganAndBulan->dd();
+        // $groupByRuanganAndBulan->dd();
 
-            $function = strtolower($tipeInfeksi);
+        $function = strtolower($tipeInfeksi);
 
-            $groupByRuanganAndBulan->transform(function ($item) use ($sumLMInfus, $labelSeries, $function) {
-                $result = [];
-                foreach ($labelSeries as $keyLabel => $value) {
-                    if (!$item->has($keyLabel)) {
-                        $result[$value] = 0;
-                    } else {
+        $groupByRuanganAndBulan->transform(function ($item) use ($sumLMInfus, $labelSeries, $function) {
+            $result = [];
+            foreach ($labelSeries as $keyLabel => $value) {
+                if (!$item->has($keyLabel)) {
+                    $result[$value] = 0;
+                } else {
 
-                        $firstItem = $item->get($keyLabel)->first();
-                        $lmInfus = $sumLMInfus->where('ruangan', $firstItem['ruangan'])->first()->ttl;
-                        $hitung = PerhitunganService::$function($firstItem['ttl'], $lmInfus);
+                    $firstItem = $item->get($keyLabel)->first();
+                    $lmInfus = optional($sumLMInfus->where('ruangan', $firstItem['ruangan'])->first())->ttl ?? 0;
+                    $hitung = PerhitunganService::$function($firstItem['ttl'], $lmInfus);
 
-                        $result[$value] = round($hitung, PHP_ROUND_HALF_UP);
-                    }
+                    $result[$value] = round($hitung, PHP_ROUND_HALF_UP);
                 }
-
-                return $result;
-            });
-
-            $result = [
-                'dataSeries' => $groupByRuanganAndBulan->toJson(),
-                'labelSeries' => collect($labelSeries)->toJson(),
-            ];
+            }
 
             return $result;
-        } catch (\Throwable $th) {
+        });
 
-            dd($th->getMessage());
-        }
+        $result = [
+            'dataSeries' => $groupByRuanganAndBulan->toJson(),
+            'labelSeries' => collect($labelSeries)->toJson(),
+        ];
+
+        return $result;
     }
 }
