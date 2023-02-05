@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DashboardMutuRequest;
 use App\Http\Resources\ApiResource;
+use App\Services\DashboardMutuService;
 use App\Services\FileService;
 use App\Services\GoogleSheetService;
 use App\Services\INMMutuService;
@@ -19,12 +20,23 @@ class DashboardMutuController extends Controller
     {
         $params = '';
 
-        // MutuService::saveToDisk();
-        $indikators = (new FileService('inm'))->read();
-        $subIndikator = $indikators->map(function ($item) {
-            return array_keys($item)[0];
-        });
-        return view('mutu.index', compact('params', 'subIndikator'));
+        $inm = new INMMutuService();
+
+        $labels = $inm->label()->readCollection()->flatten();
+        $values = $inm->setIndikator("Kepatuhan Identifikasi Pasien")
+            ->setUnit("Maternal")
+            ->val()
+            ->readCollection()
+            ->flatten();
+
+        $chart = (new DashboardMutuService())
+            ->setTitle($inm->getTitle())
+            ->setLabel($labels)
+            ->setVal($values)
+            ->result()
+            ->toJson();
+
+        return view('mutu.index', compact('params', 'chart'));
     }
 
     public function showChart(DashboardMutuRequest $request)
@@ -74,7 +86,7 @@ class DashboardMutuController extends Controller
         dd($readInm);
     }
 
-    public function subIndikator()
+    public function getSubIndikator()
     {
         try {
 
@@ -86,6 +98,25 @@ class DashboardMutuController extends Controller
                 'status' => Response::HTTP_OK,
                 'messages' => 'Berhasil dimuat',
                 'data' => $subIndikator
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json($th->getMessage());
+        }
+    }
+
+    public function getUnit()
+    {
+        try {
+
+            $subIndikator = request()->get('subIndikator');
+            $inm = new INMMutuService();
+            $units = $inm->indikatorsList()
+                ->units($subIndikator);
+
+            return new ApiResource([
+                'status' => Response::HTTP_OK,
+                'messages' => 'Berhasil dimuat',
+                'data' => $units
             ]);
         } catch (\Throwable $th) {
             return response()->json($th->getMessage());

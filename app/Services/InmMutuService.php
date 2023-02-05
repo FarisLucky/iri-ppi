@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 
 class INMMutuService
 {
-    private $data,
+    private $range,
         $sheet,
         $documentId,
         $indikator,
@@ -25,7 +25,7 @@ class INMMutuService
     public function getData()
     {
         $sheet = $this->sheet;
-        $sheet->range = $this->range();
+        $sheet->range = $this->range;
         $sheet->documentId = $this->documentId;
 
         return $sheet;
@@ -46,7 +46,7 @@ class INMMutuService
         return strtolower($this->file);
     }
 
-    public function range(): string
+    public function val()
     {
         $this->indikatorsList();
 
@@ -62,7 +62,16 @@ class INMMutuService
         $filterByUnit = Arr::collapse($units);
         $range = Arr::get($filterByUnit, $unit);
 
-        return $range;
+        $this->range = $range;
+
+        return $this;
+    }
+
+    public function label()
+    {
+        $this->range = "INM JANUARI 2023!E3:AI3";
+
+        return $this;
     }
 
     public function indikatorsList()
@@ -76,21 +85,30 @@ class INMMutuService
     {
         $indikators = $this->indikatorList;
 
-        return $indikators->map(function ($item) {
+        $subIndikator = $indikators->transform(function ($item) {
             return array_keys($item)[0];
         });
+
+        return $subIndikator;
     }
 
-    /**
-     * Set the value of documentId
-     *
-     * @return  self
-     */
-    public function setDocumentId($documentId)
+    public function units($subIndikator): Collection
     {
-        $this->documentId = $documentId;
+        $indikators = $this->indikatorList;
 
-        return $this;
+        // $units = $indikators->transform(function ($item) use ($subIndikator) {
+        //     if (array_keys($item)[0] == $subIndikator) {
+        //         return array_values($item)[0];
+        //     }
+        // });
+        // dd($units);
+
+        return $units;
+    }
+
+    public function getTitle()
+    {
+        return "INDIKATOR MUTU NASIONAL";
     }
 
     /**

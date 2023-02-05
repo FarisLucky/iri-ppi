@@ -80,9 +80,18 @@
                                         </div>
                                         <div class="col-md-2 mb-1 pr-0">
                                             <label for="filter_sub_indikator">Sub Indikator</label>
+                                            <div id="sub_indikator_url"
+                                                data-url="{{ route('mutu.indikator.subIndikator.unit') }}">
+                                            </div>
                                             <select name="filter_sub_indikator" id="filter_sub_indikator"
                                                 class="form-control">
                                                 <option value="">Pilih Sub Indikator</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 mb-1 pr-0">
+                                            <label for="filter_unit">Unit</label>
+                                            <select name="filter_unit" id="filter_unit" class="form-control">
+                                                <option value="">Pilih Unit</option>
                                             </select>
                                         </div>
                                         <div class="mt-1">
@@ -98,9 +107,10 @@
             <div class="col-md-12 mt-2">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="border-bottom pb-2">Indikator Nasional <strong>Mutu</strong> Tahun
+                        <h4 class="border-bottom pb-2"><strong>{{ json_decode($chart, true)['title'] }}</strong> Tahun
                             <strong>{{ now()->format('Y') }}</strong>
                         </h4>
+                        <div id="chart_data" data-chart="{{ $chart }}"></div>
                         <div id="chart"></div>
                     </div>
                 </div>
@@ -151,23 +161,72 @@
                         console.log(err)
                     });
             });
+
+            $('#filter_sub_indikator').on('change', function(e) {
+                e.preventDefault();
+                showLoader()
+                let indikatorUrl = $('#sub_indikator_url').attr('data-url')
+                let dataIndikator = {
+                    subIndikator: $(this).val()
+                }
+                if (dataIndikator.indikator == '') {
+                    $('#filter_unit')
+                        .empty()
+                        .append(new Option('Pilih Units', ''))
+
+                    hideLoader()
+                    return;
+                }
+                $.ajax({
+                        type: "GET",
+                        url: indikatorUrl,
+                        data: dataIndikator,
+                        dataType: "JSON"
+                    })
+                    .done(resp => {
+                        hideLoader()
+                        let options = resp.data
+
+                        $('#filter_unit')
+                            .empty()
+                            .append(new Option('Pilih Units', ''))
+
+                        options.forEach(sub => {
+                            $('#filter_unit').append(new Option(sub, sub))
+                        });
+                        hideLoader()
+                    })
+                    .fail(err => {
+                        hideLoader()
+                        console.log(err)
+                    });
+            });
         });
     </script>
     <script>
+        const chartData = $('#chart_data').attr('data-chart');
+        let data = JSON.parse(chartData);
+        let title = data.title
+        let label = data.label
+        let seriesData = data.val
+
         var options = {
             series: [{
-                name: "Desktops",
-                data: [10, 41, 35, 51, 49, 62, 69, 91, 148, 45, 120, 80]
+                name: title,
+                data: seriesData
             }],
             chart: {
                 height: 350,
                 type: 'line',
                 zoom: {
-                    enabled: false
+                    enabled: true
                 }
             },
             dataLabels: {
-                enabled: false
+                enabled: true,
+                formatter: (val) => {
+                    return val + " %";
+                }
             },
             stroke: {
                 curve: 'straight'
@@ -179,7 +238,19 @@
                 },
             },
             xaxis: {
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'],
+                categories: label,
+            },
+            yaxis: {
+                title: {
+                    text: 'Presentase',
+                }
+            },
+            tooltip: {
+                y: {
+                    formatter: function(val) {
+                        return val + " %"
+                    }
+                }
             }
         };
 
