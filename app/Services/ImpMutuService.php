@@ -5,7 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
-class InmMutuService
+class ImpMutuService
 {
     private $range,
         $sheet,
@@ -48,8 +48,20 @@ class InmMutuService
 
     public function val()
     {
+        $this->indikatorsList();
+
+        // $list = $this->indikatorList;
+        // $indikator = $this->indikator;
         $unit = $this->unit;
         $this->range = $unit;
+
+        // $filterByIndikator = $list->filter(function ($item) use ($indikator) {
+        //     return array_keys($item)[0] == $indikator;
+        // })->first();
+
+        // $units = array_values($filterByIndikator)[0];
+        // $filterByUnit = Arr::collapse($units);
+        // $range = Arr::get($filterByUnit, $unit);
 
         return $this;
     }

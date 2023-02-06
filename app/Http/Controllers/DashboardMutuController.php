@@ -7,7 +7,7 @@ use App\Http\Resources\ApiResource;
 use App\Services\DashboardMutuService;
 use App\Services\FileService;
 use App\Services\GoogleSheetService;
-use App\Services\INMMutuService;
+use App\Services\InmMutuService;
 use App\Services\MutuService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -18,55 +18,41 @@ class DashboardMutuController extends Controller
 {
     public function index()
     {
-        $params = '';
-
-        $inm = new INMMutuService();
-
-        $labels = $inm->label()->readCollection()->flatten();
-        $values = $inm->setIndikator("Kepatuhan Identifikasi Pasien")
-            ->setUnit("Maternal")
-            ->val()
-            ->readCollection()
-            ->flatten();
-
-        $chart = (new DashboardMutuService())
-            ->setTitle($inm->getTitle())
-            ->setLabel($labels)
-            ->setVal($values)
-            ->result()
-            ->toJson();
+        $params = "";
+        $chart = "";
 
         return view('mutu.index', compact('params', 'chart'));
     }
 
     public function showChart(DashboardMutuRequest $request)
     {
-        $params = [];
-
-        if ($request->has('filter_year')) {
-            $params['filter_year'] = $request->filter_year;
-        }
-
-        if ($request->has('filter_month')) {
-            $params['filter_month'] = $request->filter_month;
-        }
-
-        if ($request->has('filter_infeksi')) {
-            $params['filter_infeksi'] = $request->filter_infeksi;
-        }
-
         try {
-            $listIndikator = config('sheets.file');
-            $fileName = Arr::get($listIndikator, $request->filter_sub_indikator);
-            $indikators = (new FileService($fileName))->read();
-            $subIndikator = $indikators->map(function ($item) {
-                return array_keys($item)[0];
-            });
-        } catch (\Throwable $th) {
-            return redirect()->route('home')->with(['error' => $th->getMessage()])->withInput();
-        }
+            $params = $request->validated();
 
-        return view('home', compact('infeksiColumn', 'infeksiSplineChart', 'params'));
+            $inm = new InmMutuService();
+            $labels = $inm->label()->readCollection()->flatten();
+            $values = $inm->setIndikator($params["filter_sub_indikator"])
+                ->setUnit($params["filter_unit"])
+                ->val()
+                ->readCollection()
+                ->flatten();
+
+            $title = $inm->getTitle() . " Unit " . $inm->getUnit();
+            $chart = (new DashboardMutuService())
+                ->setTitle($title)
+                ->setLabel($labels)
+                ->setVal($values)
+                ->result()
+                ->toJson();
+
+            return view('mutu.index', compact('params', 'chart'))->with($request->all());
+        } catch (\Throwable $th) {
+
+            return redirect()
+                ->route('mutu.dashboard')
+                ->with(['error' => $th->getMessage()])
+                ->withInput();
+        }
     }
 
     public function indikator($jenis)
@@ -79,7 +65,7 @@ class DashboardMutuController extends Controller
 
     public function baca()
     {
-        $inm = new INMMutuService();
+        $inm = new InmMutuService();
         $readInm = $inm->setIndikator(request()->get('indikator'))
             ->setUnit(request()->get('unit'))
             ->readCollection();
@@ -90,7 +76,7 @@ class DashboardMutuController extends Controller
     {
         try {
 
-            $inm = new INMMutuService();
+            $inm = new InmMutuService();
             $subIndikator = $inm->indikatorsList()
                 ->subIndikatorsList();
 
@@ -109,7 +95,7 @@ class DashboardMutuController extends Controller
         try {
 
             $subIndikator = request()->get('subIndikator');
-            $inm = new INMMutuService();
+            $inm = new InmMutuService();
             $units = $inm->indikatorsList()
                 ->units($subIndikator);
 

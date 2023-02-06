@@ -18,16 +18,21 @@
                         </h2>
                         @php
                             $showChart = isset($infeksiSplineChart) && $infeksiSplineChart != '';
+
+                            function selected($name, array $options)
+                            {
+                                return in_array($name, $options) ? 'selected' : '';
+                            }
                         @endphp
                         <div id="collapseOne" class="accordion-collapse collapse {{ $showChart ? '' : 'show' }}"
                             aria-labelledby="headingOne" data-bs-parent="#accordionFilter">
                             <div class="accordion-body">
-                                <form action="{{ route('mutu.dashboard') }}" method="POST">
+                                <form action="{{ route('mutu.filter.dashboard') }}" method="POST">
                                     @csrf
                                     <div class="row align-items-end">
                                         <div class="col-md-2 mb-1 pr-0">
                                             <label for="filter_year">Tahun</label>
-                                            <select name="filter_year" id="filter_year" class="form-control">
+                                            <select name="filter_year" id="filter_year" class="form-control" required>
                                                 <option value="">Pilih Tahun</option>
                                                 @php
                                                     $year = date('Y');
@@ -36,7 +41,7 @@
                                                 @endphp
                                                 @for ($y = $max; $y >= $min; $y--)
                                                     <option value="{{ $y }}"
-                                                        {{ $y == optional($params)['filter_year'] ? 'selected' : '' }}>
+                                                        {{ selected($y, [optional($params)['filter_year'], old('filter_year')]) }}>
                                                         {{ $y }}</option>
                                                 @endfor
                                             </select>
@@ -46,14 +51,14 @@
                                         </div>
                                         <div class="col-md-2 mb-1 pr-0">
                                             <label for="filter_month">Bulan</label>
-                                            <select name="filter_month" id="filter_month" class="form-control">
+                                            <select name="filter_month" id="filter_month" class="form-control" required>
                                                 <option value="">Pilih Bulan</option>
                                                 @php
                                                     $maxMonth = 12;
                                                 @endphp
                                                 @for ($y = 1; $y <= $maxMonth; $y++)
                                                     <option value="{{ $y }}"
-                                                        {{ in_array($y, [optional($params)['filter_month'], old('filter_month')]) ? 'selected' : '' }}>
+                                                        {{ selected($y, [optional($params)['filter_month'], old('filter_month')]) }}>
                                                         {{ date('F', mktime(0, 0, 0, $y, 1)) }}</option>
                                                 @endfor
                                             </select>
@@ -68,10 +73,13 @@
                                             <label for="filter_indikator">Jenis Indikator</label>
                                             <div id="jenis_url" data-url="{{ route('mutu.indikator.subIndikator') }}">
                                             </div>
-                                            <select name="filter_indikator" id="filter_indikator" class="form-control">
+                                            <select name="filter_indikator" id="filter_indikator" class="form-control"
+                                                required>
                                                 <option value="">Pilih Jenis Indikator</option>
                                                 @foreach ($indikators as $key => $d)
-                                                    <option value="{{ $key }}"> {{ $key }}</option>
+                                                    <option value="{{ $key }}"
+                                                        {{ selected($y, [optional($params)['filter_indikator'], old('filter_indikator')]) }}>
+                                                        {{ $key }}</option>
                                                 @endforeach
                                             </select>
                                             @error('filter_indikator')
@@ -84,15 +92,22 @@
                                                 data-url="{{ route('mutu.indikator.subIndikator.unit') }}">
                                             </div>
                                             <select name="filter_sub_indikator" id="filter_sub_indikator"
-                                                class="form-control">
+                                                class="form-control" required>
                                                 <option value="">Pilih Sub Indikator</option>
                                             </select>
+                                            @error('filter_sub_indikator')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
                                         </div>
                                         <div class="col-md-2 mb-1 pr-0">
                                             <label for="filter_unit">Unit</label>
-                                            <select name="filter_unit" id="filter_unit" class="form-control">
+                                            <input type="hidden" name="unit_hide" id="unit_hide">
+                                            <select name="filter_unit" id="filter_unit" class="form-control" required>
                                                 <option value="">Pilih Unit</option>
                                             </select>
+                                            @error('filter_unit')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
                                         </div>
                                         <div class="mt-1">
                                             <button type="submit" class="btn btn-primary">Terapkan</button>
@@ -107,7 +122,8 @@
             <div class="col-md-12 mt-2">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="border-bottom pb-2"><strong>{{ json_decode($chart, true)['title'] }}</strong> Tahun
+                        <h4 class="border-bottom pb-2"><strong>{{ optional(json_decode($chart, true))['title'] }}</strong>
+                            Tahun
                             <strong>{{ now()->format('Y') }}</strong>
                         </h4>
                         <div id="chart_data" data-chart="{{ $chart }}"></div>
@@ -119,7 +135,7 @@
     </div>
 @endsection
 @push('javascript')
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="{{ asset('admin/dist/apexcharts/apexcharts.min.js') }}"></script>
     <script type="text/javascript">
         $(function() {
             hideLoader()
@@ -192,7 +208,12 @@
                             .append(new Option('Pilih Units', ''))
 
                         options.forEach(sub => {
-                            $('#filter_unit').append(new Option(sub, sub))
+                            $('#filter_unit').append(
+                                new Option(
+                                    Object.keys(sub)[0],
+                                    Object.values(sub)[0]
+                                )
+                            )
                         });
                         hideLoader()
                     })
@@ -201,6 +222,7 @@
                         console.log(err)
                     });
             });
+
         });
     </script>
     <script>
@@ -222,6 +244,7 @@
                     enabled: true
                 }
             },
+            colors: ["#118ab2"],
             dataLabels: {
                 enabled: true,
                 formatter: (val) => {

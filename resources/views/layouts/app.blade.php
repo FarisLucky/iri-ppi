@@ -133,6 +133,12 @@
 
             <main class="content">
                 {{-- <div class="container-fluid p-0"> --}}
+
+                @if (session()->get('error'))
+                    <div class="alert alert-danger py-2 justify-content-center">
+                        <h3>{{ session()->get('error') }}</h3>
+                    </div>
+                @endif
                 @yield('content')
                 {{-- </div> --}}
             </main>

@@ -28,6 +28,7 @@ class DashboardMutuRequest extends FormRequest
             'filter_month' => 'required',
             'filter_indikator' => 'required',
             'filter_sub_indikator' => 'required',
+            "filter_unit" => "required",
         ];
     }
 }

@@ -1,11 +1,6 @@
 @extends('layouts.app')
 @section('content')
     <div class="container-fluid">
-        @if (session()->get('error'))
-            <div class="alert alert-danger py-2 justify-content-center">
-                <h3>{{ session()->get('error') }}</h3>
-            </div>
-        @endif
         <div class="row justify-content-center">
             <div class="col-md-12 mb-2">
                 <div class="accordion" id="accordionFilter">
@@ -139,7 +134,7 @@
     </div>
 @endsection
 @push('javascript')
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="{{ asset('admin/dist/apexcharts/apexcharts.min.js') }}"></script>
     <script type="text/javascript">
         $(function() {
             hideLoader()
