@@ -48,27 +48,15 @@ class ImpRsMutuService
 
     public function val()
     {
-        $this->indikatorsList();
-
-        // $list = $this->indikatorList;
-        // $indikator = $this->indikator;
         $unit = $this->unit;
         $this->range = $unit;
-
-        // $filterByIndikator = $list->filter(function ($item) use ($indikator) {
-        //     return array_keys($item)[0] == $indikator;
-        // })->first();
-
-        // $units = array_values($filterByIndikator)[0];
-        // $filterByUnit = Arr::collapse($units);
-        // $range = Arr::get($filterByUnit, $unit);
 
         return $this;
     }
 
     public function label()
     {
-        $this->range = "INM JANUARI 2023!E3:AI3";
+        $this->range = "2023!E3:AI3";
 
         return $this;
     }
@@ -108,7 +96,7 @@ class ImpRsMutuService
 
     public function getTitle()
     {
-        return "INM";
+        return "IMP-RS";
     }
 
     /**
@@ -136,6 +124,18 @@ class ImpRsMutuService
     }
 
     /**
+     * Set the value of range
+     *
+     * @return  self
+     */
+    public function setRange($range)
+    {
+        $this->range = $range;
+
+        return $this;
+    }
+
+    /**
      * Get the value of unit
      */
     public function getUnit()
@@ -153,7 +153,6 @@ class ImpRsMutuService
 
         $units = array_values($filterByIndikator)[0];
         $filterByUnit = Arr::collapse($units);
-        $range = Arr::get($filterByUnit, $unit);
 
         return array_search($unit, $filterByUnit);
     }

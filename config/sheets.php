@@ -12,7 +12,7 @@ return [
     ],
     'sub-indikator' => [
         'INM' => 'INM JANUARI 2023!B:C',
-        'IMP-RS' => 'JANUARI 2023!B:C',
+        'IMP-RS' => '2023!B:C',
         'IMP-UNIT' => 'JANUARI 2023!B:C',
     ],
     "file" => [
