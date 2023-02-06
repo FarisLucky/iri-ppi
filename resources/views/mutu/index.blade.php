@@ -183,7 +183,8 @@
                 showLoader()
                 let indikatorUrl = $('#sub_indikator_url').attr('data-url')
                 let dataIndikator = {
-                    subIndikator: $(this).val()
+                    subIndikator: $(this).val(),
+                    indikator: $("#filter_indikator").val()
                 }
                 if (dataIndikator.indikator == '') {
                     $('#filter_unit')

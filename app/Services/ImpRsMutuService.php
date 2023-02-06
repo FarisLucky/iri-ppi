@@ -5,22 +5,21 @@ namespace App\Services;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
-class InmMutuService
+class ImpRsMutuService
 {
     private $range,
         $sheet,
         $documentId,
         $indikator,
         $indikatorList,
-        $unit;
-
-    public $file;
+        $unit,
+        $file;
 
     public function __construct()
     {
         $this->sheet = new GoogleSheetService();
-        $this->documentId = config('sheets.spreadsheet_id.INM');
-        $this->file = config('sheets.file.INM');
+        $this->documentId = config('sheets.spreadsheet_id.IMP-RS');
+        $this->file = config('sheets.file.IMP-RS');
     }
 
     public function getData()
@@ -49,8 +48,20 @@ class InmMutuService
 
     public function val()
     {
+        $this->indikatorsList();
+
+        // $list = $this->indikatorList;
+        // $indikator = $this->indikator;
         $unit = $this->unit;
         $this->range = $unit;
+
+        // $filterByIndikator = $list->filter(function ($item) use ($indikator) {
+        //     return array_keys($item)[0] == $indikator;
+        // })->first();
+
+        // $units = array_values($filterByIndikator)[0];
+        // $filterByUnit = Arr::collapse($units);
+        // $range = Arr::get($filterByUnit, $unit);
 
         return $this;
     }
@@ -125,18 +136,6 @@ class InmMutuService
     }
 
     /**
-     * Set the value of range
-     *
-     * @return  self
-     */
-    public function setRange($range)
-    {
-        $this->range = $range;
-
-        return $this;
-    }
-
-    /**
      * Get the value of unit
      */
     public function getUnit()
@@ -154,6 +153,7 @@ class InmMutuService
 
         $units = array_values($filterByIndikator)[0];
         $filterByUnit = Arr::collapse($units);
+        $range = Arr::get($filterByUnit, $unit);
 
         return array_search($unit, $filterByUnit);
     }

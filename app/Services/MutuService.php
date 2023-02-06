@@ -8,23 +8,25 @@ use Illuminate\Support\Facades\Storage;
 
 class MutuService
 {
-    public static function getIndikator()
+    private $object, $sheet, $indikator, $subIndikator, $range;
+
+    public function __construct($object)
     {
-        $initSheet = new INMMutuService();
-        $initSheet->setRange(config('sheets.sub-indikator.INM'));
-        return $initSheet->read();
+        $this->object = $object;
     }
 
-    public static function indikator()
+    public function getData()
     {
-        return Cache::remember('indikator-rs', 3600, function () {
-            return self::getIndikator();
-        });
+        $initSheet = $this->object;
+        $initSheet->setRange($this->range);
+        $this->sheet = $initSheet->read();
+
+        return $this;
     }
 
-    public static function indikatorWithUnit()
+    public function indikatorWithUnit()
     {
-        $getIndikators = self::indikator();
+        $getIndikators = $this->sheet;
 
         $indikators = collect($getIndikators)->filter(function ($item) {
             return count($item) > 0 ? $item : null;
@@ -33,11 +35,7 @@ class MutuService
         }); // 2x loop
 
         $indikators->shift(); // remove first element
-        // $indikators->dd();
-        $units = $indikators->filter(function ($item) {
-            return $item->get(0) == '';
-        });
-        $units = collect([]);
+
         $head = 0;
         foreach ($indikators as $key => $indikator) {
             if ($indikator->get(0) == '') {
@@ -48,6 +46,7 @@ class MutuService
             }
             $head = $key;
         }
+
         $indikators->transform(function ($item) {
             $data = collect();
             $key = $item->get(0);
@@ -61,18 +60,49 @@ class MutuService
             return $data;
         });
 
-        return $indikators->values();
+        $this->indikator = $indikators->values();
+
+        return $this;
     }
 
-    public static function saveToDisk()
+    public function saveToDisk()
     {
-        return Storage::disk('public')->put('inm.json', self::indikatorWithUnit()->toJson(JSON_PRETTY_PRINT));
+        return Storage::disk('public')->put($this->object->fileName() . '.json', $this->getIndikator()->toJson(JSON_PRETTY_PRINT));
     }
 
-    public static function perhitunganCell()
+    /**
+     * Get the value of range
+     */
+    public function getRange()
     {
-        $initSheet = new INMMutuService();
-        $initSheet->setRange('INM JANUARI 2023!E12:AI12');
-        return $initSheet->read();
+        return $this->range;
+    }
+
+    /**
+     * Set the value of range
+     *
+     * @return  self
+     */
+    public function setRange($range)
+    {
+        $this->range = $range;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of indikator
+     */
+    public function getIndikator()
+    {
+        return collect($this->indikator);
+    }
+
+    /**
+     * Get the value of sheet
+     */
+    public function getSheet()
+    {
+        return collect($this->sheet);
     }
 }

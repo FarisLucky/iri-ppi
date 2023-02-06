@@ -7,6 +7,8 @@ use App\Http\Resources\ApiResource;
 use App\Services\DashboardMutuService;
 use App\Services\FileService;
 use App\Services\GoogleSheetService;
+use App\Services\ImpRsMutuService;
+use App\Services\ImpUnitMutuService;
 use App\Services\InmMutuService;
 use App\Services\MutuService;
 use Illuminate\Http\Request;
@@ -29,7 +31,8 @@ class DashboardMutuController extends Controller
         try {
             $params = $request->validated();
 
-            $inm = new InmMutuService();
+            $inm = self::filters($params['filter_indikator']);
+
             $labels = $inm->label()->readCollection()->flatten();
             $values = $inm->setIndikator($params["filter_sub_indikator"])
                 ->setUnit($params["filter_unit"])
@@ -76,8 +79,8 @@ class DashboardMutuController extends Controller
     {
         try {
 
-            $inm = new InmMutuService();
-            $subIndikator = $inm->indikatorsList()
+            $object = self::filters(request()->get('indikator'));
+            $subIndikator = $object->indikatorsList()
                 ->subIndikatorsList();
 
             return new ApiResource([
@@ -95,8 +98,8 @@ class DashboardMutuController extends Controller
         try {
 
             $subIndikator = request()->get('subIndikator');
-            $inm = new InmMutuService();
-            $units = $inm->indikatorsList()
+            $object = self::filters(request()->get('indikator'));
+            $units = $object->indikatorsList()
                 ->units($subIndikator);
 
             return new ApiResource([
@@ -107,5 +110,26 @@ class DashboardMutuController extends Controller
         } catch (\Throwable $th) {
             return response()->json($th->getMessage());
         }
+    }
+
+    public static function filters($indikator)
+    {
+        $object = null;
+        switch ($indikator) {
+
+            case 'IMP-RS':
+                $object = new ImpRsMutuService();
+                break;
+
+            case 'IMP-UNIT':
+                $object = new ImpUnitMutuService();
+                break;
+
+            default:
+                $object = new InmMutuService();
+                break;
+        }
+
+        return $object;
     }
 }

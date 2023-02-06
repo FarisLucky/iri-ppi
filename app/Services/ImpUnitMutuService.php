@@ -5,21 +5,22 @@ namespace App\Services;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
-class ImpMutuService
+class ImpUnitMutuService
 {
     private $range,
         $sheet,
         $documentId,
         $indikator,
         $indikatorList,
-        $unit,
-        $file;
+        $unit;
+
+    public $file;
 
     public function __construct()
     {
         $this->sheet = new GoogleSheetService();
-        $this->documentId = config('sheets.spreadsheet_id.INM');
-        $this->file = config('sheets.file.INM');
+        $this->documentId = config('sheets.spreadsheet_id.IMP-UNIT');
+        $this->file = config('sheets.file.IMP-UNIT');
     }
 
     public function getData()
@@ -48,27 +49,15 @@ class ImpMutuService
 
     public function val()
     {
-        $this->indikatorsList();
-
-        // $list = $this->indikatorList;
-        // $indikator = $this->indikator;
         $unit = $this->unit;
         $this->range = $unit;
-
-        // $filterByIndikator = $list->filter(function ($item) use ($indikator) {
-        //     return array_keys($item)[0] == $indikator;
-        // })->first();
-
-        // $units = array_values($filterByIndikator)[0];
-        // $filterByUnit = Arr::collapse($units);
-        // $range = Arr::get($filterByUnit, $unit);
 
         return $this;
     }
 
     public function label()
     {
-        $this->range = "INM JANUARI 2023!E3:AI3";
+        $this->range = "JANUARI 2023!E3:AI3";
 
         return $this;
     }
@@ -108,7 +97,7 @@ class ImpMutuService
 
     public function getTitle()
     {
-        return "INM";
+        return "IMP-UNIT";
     }
 
     /**
@@ -136,6 +125,18 @@ class ImpMutuService
     }
 
     /**
+     * Set the value of range
+     *
+     * @return  self
+     */
+    public function setRange($range)
+    {
+        $this->range = $range;
+
+        return $this;
+    }
+
+    /**
      * Get the value of unit
      */
     public function getUnit()
@@ -153,7 +154,6 @@ class ImpMutuService
 
         $units = array_values($filterByIndikator)[0];
         $filterByUnit = Arr::collapse($units);
-        $range = Arr::get($filterByUnit, $unit);
 
         return array_search($unit, $filterByUnit);
     }

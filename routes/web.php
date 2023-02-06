@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardInsidenController;
 use App\Http\Controllers\DashboardMutuController;
+use App\Http\Controllers\GenerateFileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InsidenController;
 use App\Http\Controllers\InsidenHistoryController;
@@ -44,3 +45,5 @@ Route::post('mutu/filter/dashboard', [DashboardMutuController::class, 'showChart
 Route::get('mutu/baca/', [DashboardMutuController::class, 'baca'])->name('mutu.baca');
 Route::get('indikator/sub/', [DashboardMutuController::class, 'getSubIndikator'])->name('mutu.indikator.subIndikator');
 Route::get('indikator/unit/', [DashboardMutuController::class, 'getUnit'])->name('mutu.indikator.subIndikator.unit');
+Route::get('generate/mutu/', [GenerateFileController::class, 'index'])->name('mutu.generate.index');
+Route::post('generate/mutu/', [GenerateFileController::class, 'generate'])->name('mutu.generate.file');

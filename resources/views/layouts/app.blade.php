@@ -91,6 +91,13 @@
                             </li>
                         </ul>
                     </li>
+                    <li
+                        class="sidebar-item {{ in_array(request()->route()->getName(),['mutu.generate.index', 'mutu.generate.file'])? 'active': '' }}">
+                        <a class="sidebar-link" href="{{ route('mutu.generate.index') }}">
+                            <i class="align-middle" data-feather="sliders"></i> <span class="align-middle">Generate
+                                File</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </nav>
@@ -137,6 +144,11 @@
                 @if (session()->get('error'))
                     <div class="alert alert-danger py-2 justify-content-center">
                         <h3>{{ session()->get('error') }}</h3>
+                    </div>
+                @endif
+                @if (session()->get('success'))
+                    <div class="alert alert-success py-2 justify-content-center">
+                        <h3>{{ session()->get('success') }}</h3>
                     </div>
                 @endif
                 @yield('content')
