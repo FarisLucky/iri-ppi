@@ -58,23 +58,6 @@ class DashboardMutuController extends Controller
         }
     }
 
-    public function indikator($jenis)
-    {
-        return response()->json([
-            'success' => Response::HTTP_OK,
-            'data' => MutuService::indikatorWithUnit($jenis),
-        ]);
-    }
-
-    public function baca()
-    {
-        $inm = new InmMutuService();
-        $readInm = $inm->setIndikator(request()->get('indikator'))
-            ->setUnit(request()->get('unit'))
-            ->readCollection();
-        dd($readInm);
-    }
-
     public function getSubIndikator()
     {
         try {

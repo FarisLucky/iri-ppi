@@ -54,13 +54,13 @@
                                             <select name="filter_month" id="filter_month" class="form-control" required>
                                                 <option value="">Pilih Bulan</option>
                                                 @php
-                                                    $maxMonth = 12;
+                                                    $maxMonth = config('sheets.bulan');
                                                 @endphp
-                                                @for ($y = 1; $y <= $maxMonth; $y++)
-                                                    <option value="{{ $y }}"
-                                                        {{ selected($y, [optional($params)['filter_month'], old('filter_month')]) }}>
-                                                        {{ date('F', mktime(0, 0, 0, $y, 1)) }}</option>
-                                                @endfor
+                                                @foreach ($maxMonth as $key => $m)
+                                                    <option value="{{ $key }}"
+                                                        {{ selected($key, [optional($params)['filter_month'], old('filter_month')]) }}>
+                                                        {{ $m }}</option>
+                                                @endforeach
                                             </select>
                                             @error('filter_month')
                                                 <span class="text-danger">{{ $message }}</span>
