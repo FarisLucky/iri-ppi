@@ -13,10 +13,9 @@ class ImpRsMutuService
         $indikator,
         $indikatorList,
         $unit,
+        $year,
+        $month,
         $file;
-
-    public $tahun,
-        $bulan;
 
     public function __construct()
     {
@@ -66,12 +65,19 @@ class ImpRsMutuService
 
     public function indikatorsList()
     {
-        $this->indikatorList = (new FileService($this->fileName()))->read();
+        $fileService = new FileService($this->fileName());
+        if (!is_null($this->year)) {
+            $fileService->setYear($this->year);
+        }
+        if (!is_null($this->month)) {
+            $fileService->setMonth($this->month);
+        }
+        $this->indikatorList = $fileService->read();
 
         return $this;
     }
 
-    public function subIndikatorsList($params): Collection
+    public function subIndikatorsList(): Collection
     {
         $indikators = $this->indikatorList;
 
@@ -161,25 +167,25 @@ class ImpRsMutuService
     }
 
     /**
-     * Set the value of tahun
+     * Set the value of year
      *
      * @return  self
      */
-    public function setTahun($tahun)
+    public function setYear($year)
     {
-        $this->tahun = $tahun;
+        $this->year = $year;
 
         return $this;
     }
 
     /**
-     * Set the value of bulan
+     * Set the value of month
      *
      * @return  self
      */
-    public function setBulan($bulan)
+    public function setMonth($month)
     {
-        $this->bulan = $bulan;
+        $this->month = $month;
 
         return $this;
     }

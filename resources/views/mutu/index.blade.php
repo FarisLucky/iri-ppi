@@ -144,7 +144,9 @@
                 showLoader()
                 let indikatorUrl = $('#jenis_url').attr('data-url')
                 let dataIndikator = {
-                    indikator: $(this).val()
+                    indikator: $(this).val(),
+                    filter_year: $("#filter_year").val(),
+                    filter_month: $("#filter_month").val()
                 }
                 if (dataIndikator.indikator == '') {
                     $('#filter_sub_indikator')
@@ -184,7 +186,9 @@
                 let indikatorUrl = $('#sub_indikator_url').attr('data-url')
                 let dataIndikator = {
                     subIndikator: $(this).val(),
-                    indikator: $("#filter_indikator").val()
+                    indikator: $("#filter_indikator").val(),
+                    filter_year: $("#filter_year").val(),
+                    filter_month: $("#filter_month").val()
                 }
                 if (dataIndikator.indikator == '') {
                     $('#filter_unit')

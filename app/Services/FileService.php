@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 class FileService
@@ -21,33 +22,52 @@ class FileService
 
     public function read()
     {
-        $data = $this->decode()->data;
-        $this->filterByYear();
-
-        return collect($data);
+        $data = $this->decode();
+        // if (!is_null($this->year) && !is_null($this->month)) {
+        //     $data = $data->filters();
+        // }
+        return collect($data->data);
     }
 
-    public function filterByYear()
+    public function filters()
     {
+        $month = $this->month;
         $year = $this->year;
 
-        $data = $this->decode()->data;
+        $data = $this->data;
 
         $filteredData = [];
+        $months = config('sheets.bulan');
         foreach ($data as $key => $subIndikator) {
             $unit = array_values($subIndikator)[0];
+            $indikatorKey = array_keys($subIndikator)[0];
             $unitCollapse = Arr::collapse($unit);
             if (is_array($unitCollapse)) {
                 $units = [];
-                foreach ($unitCollapse as $value) {
+                foreach ($unitCollapse as $unitKey => $value) {
                     $explode = explode(" ", $value);
-                    dd($explode);
-                    array_push($units, $explode);
+                    $firstName = $explode[0];
+                    $center = array_filter($months, function ($key) use ($month) {
+                        return $key == $month;
+                    }, ARRAY_FILTER_USE_KEY);
+                    $lastName = explode("!", $explode[2]);
+                    $replaceYear = $year . '!' . $lastName[1];
+                    $fullName = $firstName . " " . array_shift($center) . " " . $replaceYear;
+                    array_push($units, [
+                        $unitKey => $fullName
+                    ]);
                 }
+                array_push($filteredData, [
+                    $indikatorKey => $units
+                ]);
+            } else {
+                array_push($filteredData, [
+                    $indikatorKey => $unit
+                ]);
             }
-            array_push($filteredData, Arr::collapse($unit));
         }
-        dd($filteredData);
+
+        $this->data = $filteredData;
 
         return $this;
     }

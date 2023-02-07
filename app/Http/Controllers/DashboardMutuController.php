@@ -63,7 +63,10 @@ class DashboardMutuController extends Controller
         try {
 
             $object = self::filters(request()->get('indikator'));
-            $subIndikator = $object->indikatorsList()
+            $subIndikator = $object
+                ->setMonth(request()->get('filter_month'))
+                ->setYear(request()->get('filter_year'))
+                ->indikatorsList()
                 ->subIndikatorsList();
 
             return new ApiResource([
@@ -72,7 +75,7 @@ class DashboardMutuController extends Controller
                 'data' => $subIndikator
             ]);
         } catch (\Throwable $th) {
-            return response()->json($th->getMessage());
+            return dd($th->getMessage());
         }
     }
 

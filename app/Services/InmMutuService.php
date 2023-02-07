@@ -12,6 +12,8 @@ class InmMutuService
         $documentId,
         $indikator,
         $indikatorList,
+        $year,
+        $month,
         $unit;
 
     public $file;
@@ -64,7 +66,14 @@ class InmMutuService
 
     public function indikatorsList()
     {
-        $this->indikatorList = (new FileService($this->fileName()))->read();
+        $fileService = new FileService($this->fileName());
+        if (!is_null($this->year)) {
+            $fileService->setYear($this->year);
+        }
+        if (!is_null($this->month)) {
+            $fileService->setMonth($this->month);
+        }
+        $this->indikatorList = $fileService->read();
 
         return $this;
     }
@@ -156,5 +165,29 @@ class InmMutuService
         $filterByUnit = Arr::collapse($units);
 
         return array_search($unit, $filterByUnit);
+    }
+
+    /**
+     * Set the value of year
+     *
+     * @return  self
+     */
+    public function setYear($year)
+    {
+        $this->year = $year;
+
+        return $this;
+    }
+
+    /**
+     * Set the value of month
+     *
+     * @return  self
+     */
+    public function setMonth($month)
+    {
+        $this->month = $month;
+
+        return $this;
     }
 }
