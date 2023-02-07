@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class MutuService
 {
-    private $object, $sheet, $indikator, $subIndikator, $range;
+    private $object, $sheet, $indikator, $range;
 
     public function __construct($object)
     {

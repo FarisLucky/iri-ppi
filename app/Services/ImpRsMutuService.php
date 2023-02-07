@@ -15,6 +15,9 @@ class ImpRsMutuService
         $unit,
         $file;
 
+    public $tahun,
+        $bulan;
+
     public function __construct()
     {
         $this->sheet = new GoogleSheetService();
@@ -68,7 +71,7 @@ class ImpRsMutuService
         return $this;
     }
 
-    public function subIndikatorsList(): Collection
+    public function subIndikatorsList($params): Collection
     {
         $indikators = $this->indikatorList;
 
@@ -155,5 +158,29 @@ class ImpRsMutuService
         $filterByUnit = Arr::collapse($units);
 
         return array_search($unit, $filterByUnit);
+    }
+
+    /**
+     * Set the value of tahun
+     *
+     * @return  self
+     */
+    public function setTahun($tahun)
+    {
+        $this->tahun = $tahun;
+
+        return $this;
+    }
+
+    /**
+     * Set the value of bulan
+     *
+     * @return  self
+     */
+    public function setBulan($bulan)
+    {
+        $this->bulan = $bulan;
+
+        return $this;
     }
 }
