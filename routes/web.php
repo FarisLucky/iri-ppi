@@ -25,7 +25,7 @@ Auth::routes();
 Route::get('/', [DashboardInsidenController::class, 'index'])->name('home');
 
 // Insiden Route
-Route::get('insiden/dashboard', [DashboardInsidenController::class, 'index'])->name('insiden.dashboard');
+Route::post('insiden/dashboard', [DashboardInsidenController::class, 'showChart'])->name('insiden.dashboard');
 Route::get('insiden/data', [InsidenController::class, 'data'])->name('insiden.data');
 Route::get('insiden', [InsidenController::class, 'index'])->name('insiden.index');
 Route::get('insiden/{id}', [InsidenController::class, 'edit'])->name('insiden.edit');
