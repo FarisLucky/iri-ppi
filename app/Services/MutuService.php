@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class MutuService
 {
-    private $object, $sheet, $indikator, $range;
+    private $object, $sheet, $indikator, $range, $jenisIndikator;
 
     public function __construct($object)
     {
@@ -47,14 +47,17 @@ class MutuService
             $head = $key;
         }
 
-        $indikators->transform(function ($item) {
+        $sheetStart = 3;
+        $indikators->transform(function ($item) use (&$sheetStart) {
             $data = collect();
             $key = $item->get(0);
             $item->shift();
             $data->put(
                 $key,
-                $item->map(function ($item) {
-                    return [$item => 'INM JANUARI 2023!'];
+                $item->map(function ($item) use (&$sheetStart) {
+                    $sheetStart += 3;
+                    $result = [$item => $this->jenisIndikator . " JANUARI 2023!E" . $sheetStart . ":AI" . $sheetStart];
+                    return $result;
                 })
             );
             return $data;
@@ -104,5 +107,17 @@ class MutuService
     public function getSheet()
     {
         return collect($this->sheet);
+    }
+
+    /**
+     * Set the value of jenisIndikator
+     *
+     * @return  self
+     */
+    public function setJenisIndikator($jenisIndikator)
+    {
+        $this->jenisIndikator = $jenisIndikator;
+
+        return $this;
     }
 }

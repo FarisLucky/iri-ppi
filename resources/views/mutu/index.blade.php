@@ -18,7 +18,7 @@
                         </h2>
                         @php
                             $showChart = isset($infeksiSplineChart) && $infeksiSplineChart != '';
-
+                            
                             function selected($name, array $options)
                             {
                                 return in_array($name, $options) ? 'selected' : '';
@@ -36,7 +36,7 @@
                                                 <option value="">Pilih Tahun</option>
                                                 @php
                                                     $year = date('Y');
-                                                    $min = $year - 60;
+                                                    $min = $year;
                                                     $max = $year;
                                                 @endphp
                                                 @for ($y = $max; $y >= $min; $y--)

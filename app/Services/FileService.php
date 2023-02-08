@@ -23,9 +23,9 @@ class FileService
     public function read()
     {
         $data = $this->decode();
-        // if (!is_null($this->year) && !is_null($this->month)) {
-        //     $data = $data->filters();
-        // }
+        if (!is_null($this->year) && !is_null($this->month)) {
+            $data = $data->filters();
+        }
         return collect($data->data);
     }
 

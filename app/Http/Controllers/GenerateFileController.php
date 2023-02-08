@@ -22,7 +22,9 @@ class GenerateFileController extends Controller
                 DashboardMutuController::filters($type)
             );
 
-            $fileService->setRange(config('sheets.sub-indikator.' . $type));
+            $fileService
+                ->setRange(config('sheets.sub-indikator.' . $type))
+                ->setJenisIndikator($type);
 
             $fileService->getData()
                 ->indikatorWithUnit()
