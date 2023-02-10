@@ -67,6 +67,7 @@ class InmMutuService
     public function indikatorsList()
     {
         $fileService = new FileService($this->fileName());
+        $fileService->setType($this->getType());
         if (!is_null($this->year)) {
             $fileService->setYear($this->year);
         }
@@ -105,6 +106,11 @@ class InmMutuService
     }
 
     public function getTitle()
+    {
+        return "INM";
+    }
+
+    public function getType()
     {
         return "INM";
     }

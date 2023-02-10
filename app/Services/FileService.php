@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class FileService
 {
-    public $name, $data, $year, $month;
+    public $name, $data, $year, $month, $type;
 
     public function __construct($name)
     {
@@ -47,12 +47,19 @@ class FileService
                 foreach ($unitCollapse as $unitKey => $value) {
                     $explode = explode(" ", $value);
                     $firstName = $explode[0];
-                    $center = array_filter($months, function ($key) use ($month) {
-                        return $key == $month;
-                    }, ARRAY_FILTER_USE_KEY);
-                    $lastName = explode("!", $explode[2]);
-                    $replaceYear = $year . '!' . $lastName[1];
-                    $fullName = $firstName . " " . array_shift($center) . " " . $replaceYear;
+                    $time = mktime(0, 0, 0, intval($month), 1, $year);
+                    $monthName = Carbon::parse($time)->locale('id')->isoFormat('MMMM');
+                    if ($this->type == "IMP-RS") {
+                        $lastName = explode("!", $explode[0]);
+                        // dd($lastName);
+                        $sheetRange = $lastName[1];
+                        $replaceYear = $year . '!' . $sheetRange;
+                        $fullName = $replaceYear; // ex. 2023!B3:AI3
+                    } else {
+                        $lastName = explode("!", $explode[2]);
+                        $replaceYear = $year . '!' . $lastName[1];
+                        $fullName = $firstName . " " . $monthName . " " . $replaceYear; // ex. INM JANUARI 2023!B3:AI3
+                    }
                     array_push($units, [
                         $unitKey => $fullName
                     ]);
@@ -104,6 +111,18 @@ class FileService
     public function setMonth($month)
     {
         $this->month = $month;
+
+        return $this;
+    }
+
+    /**
+     * Set the value of type
+     *
+     * @return  self
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
 
         return $this;
     }

@@ -5,23 +5,26 @@ namespace App\Services;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
-class ImpRsMutuService
+class IndikatorMutuService
 {
     private $range,
         $sheet,
         $documentId,
         $indikator,
+        $indikators,
         $indikatorList,
-        $unit,
         $year,
         $month,
-        $file;
+        $unit;
 
-    public function __construct()
+    public $file;
+
+    public function __construct($indikator, $year)
     {
         $this->sheet = new GoogleSheetService();
-        $this->documentId = config('sheets.spreadsheet_id.IMP-RS.2023');
-        $this->file = config('sheets.file.IMP-RS');
+        $this->indikators = config('sheets.spreadsheet_id'); // set indikators
+        $this->documentId = config('sheets.spreadsheet_id.' . $indikator . '.' . $year);
+        $this->file = config('sheets.file.' . $indikator);
     }
 
     public function getData()
@@ -58,7 +61,8 @@ class ImpRsMutuService
 
     public function label()
     {
-        $this->range = "2023!E3:AI3";
+        $subIndikator = config('sheets.sub-indikator');
+        $this->range = "JANUARI 2023!E3:AI3";
 
         return $this;
     }
@@ -106,12 +110,12 @@ class ImpRsMutuService
 
     public function getTitle()
     {
-        return "IMP-RS";
+        return "IMP-UNIT";
     }
 
     public function getType()
     {
-        return "IMP-RS";
+        return "IMP-UNIT";
     }
 
     /**

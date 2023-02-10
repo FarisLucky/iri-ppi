@@ -56,7 +56,11 @@ class MutuService
                 $key,
                 $item->map(function ($item) use (&$sheetStart) {
                     $sheetStart += 3;
-                    $result = [$item => $this->jenisIndikator . " JANUARI 2023!E" . $sheetStart . ":AI" . $sheetStart];
+                    if ($this->jenisIndikator == "IMP-RS") {
+                        $result = [$item => "2023!E" . $sheetStart . ":AI" . $sheetStart];
+                    } else {
+                        $result = [$item => $this->jenisIndikator . " JANUARI 2023!E" . $sheetStart . ":AI" . $sheetStart];
+                    }
                     return $result;
                 })
             );

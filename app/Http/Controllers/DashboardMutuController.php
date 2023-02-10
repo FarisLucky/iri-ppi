@@ -85,7 +85,10 @@ class DashboardMutuController extends Controller
 
             $subIndikator = request()->get('subIndikator');
             $object = self::filters(request()->get('indikator'));
-            $units = $object->indikatorsList()
+            $units = $object
+                ->setMonth(request()->get('filter_month'))
+                ->setYear(request()->get('filter_year'))
+                ->indikatorsList()
                 ->units($subIndikator);
 
             return new ApiResource([
