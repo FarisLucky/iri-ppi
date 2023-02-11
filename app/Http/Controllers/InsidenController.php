@@ -17,7 +17,10 @@ class InsidenController extends Controller
     {
         $insidens = Insiden::selectInsiden()
             ->joinPasien()
-            ->where('verified', 0);
+            ->where(function ($query) {
+                $query->where('verified', 0)
+                    ->whereDate('ppi.TANGGAL', ">=", now()->format('Y-m-d'));
+            });
 
         if (
             request()->has('filter_ruangan') &&

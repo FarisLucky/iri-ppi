@@ -49,7 +49,7 @@ class FileService
                     $firstName = $explode[0];
                     $time = mktime(0, 0, 0, intval($month), 1, $year);
                     $monthName = Carbon::parse($time)->locale('id')->isoFormat('MMMM');
-                    if ($this->type == "IMP-RS") {
+                    if ($this->type == "IMPRS") {
                         $lastName = explode("!", $explode[0]);
                         // dd($lastName);
                         $sheetRange = $lastName[1];

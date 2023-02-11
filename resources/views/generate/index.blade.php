@@ -25,6 +25,29 @@
                                         @php
                                             $indikators = config('sheets.spreadsheet_id');
                                         @endphp
+                                        <div class="row align-items-end">
+                                            <div class="col-md-2 mb-1 pr-0">
+                                                <label for="filter_year">Tahun</label>
+                                                <select name="filter_year" id="filter_year" class="form-control" required>
+                                                    <option value="">Pilih Tahun</option>
+                                                    @php
+                                                        $year = date('Y');
+                                                        $min = $year - 30;
+                                                        $max = $year;
+                                                    @endphp
+                                                    @for ($y = $max; $y >= $min; $y--)
+                                                        <option value="{{ $y }}"
+                                                            {{ selected($y, [optional($params)['filter_year'], old('filter_year')]) }}>
+                                                            {{ $y }}</option>
+                                                        @if ($y == '2023')
+                                                        @break
+                                                    @endif
+                                                @endfor
+                                            </select>
+                                            @error('filter_year')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
                                         <div class="col-md-2 mb-1 pr-0">
                                             <label for="filter_indikator">Jenis Indikator</label>
                                             <select name="filter_indikator" id="filter_indikator" class="form-control"
@@ -43,19 +66,19 @@
                                             <button type="submit" class="btn btn-primary">Terapkan</button>
                                         </div>
                                     </div>
-                                </form>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 @endsection
 @push('javascript')
-    <script>
-        $(function() {
-            hideLoader()
-        });
-    </script>
+<script>
+    $(function() {
+        hideLoader()
+    });
+</script>
 @endpush

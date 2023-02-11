@@ -17,7 +17,7 @@
                         </h2>
                         @php
                             $showChart = isset($infeksiSplineChart) && $infeksiSplineChart != '';
-                            
+
                             function selected($name, array $options)
                             {
                                 return in_array($name, $options) ? 'selected' : '';
@@ -32,7 +32,7 @@
                                         <div class="col-md-2 mb-1 pr-0">
                                             <label for="filter_year">Tahun</label>
                                             <select name="filter_year" id="filter_year" class="form-control" required>
-                                                <option value="">Pilih Tahun</option>
+                                                <option value="">Pilih Data</option>
                                                 @php
                                                     $year = date('Y');
                                                     $min = $year - 30;
@@ -54,7 +54,7 @@
                                     <div class="col-md-2 mb-1 pr-0">
                                         <label for="filter_month">Bulan</label>
                                         <select name="filter_month" id="filter_month" class="form-control" required>
-                                            <option value="">Pilih Bulan</option>
+                                            <option value="">Pilih Data</option>
                                             @php
                                                 $maxMonth = config('sheets.bulan');
                                             @endphp
@@ -77,7 +77,7 @@
                                         </div>
                                         <select name="filter_indikator" id="filter_indikator" class="form-control"
                                             required>
-                                            <option value="">Pilih Jenis Indikator</option>
+                                            <option value="">Pilih Data</option>
                                             @foreach ($indikators as $key => $d)
                                                 <option value="{{ $key }}"
                                                     {{ selected($y, [optional($params)['filter_indikator'], old('filter_indikator')]) }}>
@@ -90,12 +90,14 @@
                                     </div>
                                     <div class="col-md-2 mb-1 pr-0">
                                         <label for="filter_sub_indikator">Sub Indikator</label>
+                                        <div id="data_sub_indikator"
+                                            data-sub="{{ optional($params)['filter_indikator'] }}"></div>
                                         <div id="sub_indikator_url"
                                             data-url="{{ route('mutu.indikator.subIndikator.unit') }}">
                                         </div>
                                         <select name="filter_sub_indikator" id="filter_sub_indikator"
                                             class="form-control" required>
-                                            <option value="">Pilih Sub Indikator</option>
+                                            <option value="">Pilih Data</option>
                                         </select>
                                         @error('filter_sub_indikator')
                                             <span class="text-danger">{{ $message }}</span>
@@ -105,7 +107,7 @@
                                         <label for="filter_unit">Unit</label>
                                         <input type="hidden" name="unit_hide" id="unit_hide">
                                         <select name="filter_unit" id="filter_unit" class="form-control" required>
-                                            <option value="">Pilih Unit</option>
+                                            <option value="">Pilih Data</option>
                                         </select>
                                         @error('filter_unit')
                                             <span class="text-danger">{{ $message }}</span>
@@ -121,10 +123,12 @@
                 </div>
             </div>
         </div>
+        {{-- {{ dd($params) }} --}}
         <div class="col-md-12 mt-2 {{ $params !== '' ? 'show' : 'hide' }}">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="border-bottom pb-2"><strong>{{ optional(json_decode($chart, true))['title'] }}</strong>
+                    <h4 class="border-bottom pb-2">
+                        <strong>{{ optional(json_decode($chart, true))['title'] . ' (' . optional($params)['filter_sub_indikator'] . ' )' }}</strong>
                         Tahun
                         <strong>{{ now()->format('Y') }}</strong>
                     </h4>
@@ -146,14 +150,16 @@
             showLoader()
             let indikatorUrl = $('#jenis_url').attr('data-url')
             let dataIndikator = {
-                indikator: $(this).val(),
+                filter_indikator: $(this).val(),
                 filter_year: $("#filter_year").val(),
                 filter_month: $("#filter_month").val()
             }
             if (dataIndikator.indikator == '') {
-                $('#filter_sub_indikator')
-                    .empty()
-                    .append(new Option('Pilih Sub Indikator', ''))
+                ["#filter_sub_indikator", "#filter_unit"].forEach(selectEl => {
+                    $(selectEl)
+                        .empty()
+                        .append(new Option('Pilih Data', ''))
+                })
 
                 hideLoader()
                 return;
@@ -165,11 +171,12 @@
                     dataType: "JSON"
                 })
                 .done(resp => {
-                    let options = resp.data
-                    $('#filter_sub_indikator')
-
-                        .empty()
-                        .append(new Option('Pilih Sub Indikator', ''))
+                    let options = resp.data;
+                    ["#filter_sub_indikator", "#filter_unit"].forEach(selectEl => {
+                        $(selectEl)
+                            .empty()
+                            .append(new Option('Pilih Data', ''))
+                    })
 
                     options.forEach(sub => {
                         $('#filter_sub_indikator').append(new Option(sub, sub))
@@ -187,15 +194,15 @@
             showLoader()
             let indikatorUrl = $('#sub_indikator_url').attr('data-url')
             let dataIndikator = {
-                subIndikator: $(this).val(),
-                indikator: $("#filter_indikator").val(),
+                filter_sub_indikator: $(this).val(),
+                filter_indikator: $("#filter_indikator").val(),
                 filter_year: $("#filter_year").val(),
                 filter_month: $("#filter_month").val()
             }
             if (dataIndikator.indikator == '') {
                 $('#filter_unit')
                     .empty()
-                    .append(new Option('Pilih Units', ''))
+                    .append(new Option('Pilih Data', ''))
 
                 hideLoader()
                 return;
@@ -212,7 +219,7 @@
 
                     $('#filter_unit')
                         .empty()
-                        .append(new Option('Pilih Units', ''))
+                        .append(new Option('Pilih Data', ''))
 
                     options.forEach(sub => {
                         $('#filter_unit').append(
@@ -242,15 +249,22 @@
     var options = {
         series: [{
             name: title,
-            type: 'column',
+            // type: 'column',
             data: seriesData
         }],
         chart: {
             height: 350,
-            type: 'line',
+            type: 'bar',
             zoom: {
                 enabled: true
             }
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '90%',
+                endingShape: 'rounded'
+            },
         },
         colors: ["#118ab2"],
         dataLabels: {
@@ -270,10 +284,13 @@
         },
         xaxis: {
             categories: label,
+            title: {
+                text: 'Hari ke - n dalam bulan ' + $("#filter_month option:selected").text(),
+            }
         },
         yaxis: {
             title: {
-                text: 'Presentase',
+                text: 'Presentase ' + $("#data_sub_indikator").attr("data-sub"),
             }
         },
         tooltip: {

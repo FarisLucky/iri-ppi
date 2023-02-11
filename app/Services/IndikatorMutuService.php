@@ -10,21 +10,23 @@ class IndikatorMutuService
     private $range,
         $sheet,
         $documentId,
-        $indikator,
-        $indikators,
+        $subIndikator,
+        $typeIndikator,
         $indikatorList,
         $year,
         $month,
-        $unit;
+        $unit,
+        $nameFile;
 
     public $file;
 
     public function __construct($indikator, $year)
     {
+        $this->year = $year;
+        $this->typeIndikator = $indikator;
         $this->sheet = new GoogleSheetService();
-        $this->indikators = config('sheets.spreadsheet_id'); // set indikators
-        $this->documentId = config('sheets.spreadsheet_id.' . $indikator . '.' . $year);
-        $this->file = config('sheets.file.' . $indikator);
+        $this->documentId = config('sheets.spreadsheet_id.' . $this->typeIndikator . '.' . $this->year);
+        $this->file = config('sheets.file.' . $this->typeIndikator);
     }
 
     public function getData()
@@ -61,8 +63,10 @@ class IndikatorMutuService
 
     public function label()
     {
-        $subIndikator = config('sheets.sub-indikator');
-        $this->range = "JANUARI 2023!E3:AI3";
+        $subIndikator = config('sheets.sub-indikator.' . $this->typeIndikator);
+        $explode = explode("!", $subIndikator);
+        $sheetName = $explode[0];
+        $this->range = $sheetName . "!E3:AI3";
 
         return $this;
     }
@@ -70,7 +74,7 @@ class IndikatorMutuService
     public function indikatorsList()
     {
         $fileService = new FileService($this->fileName());
-        $fileService->setType($this->getType());
+        $fileService->setType($this->getNameFile());
         if (!is_null($this->year)) {
             $fileService->setYear($this->year);
         }
@@ -110,12 +114,12 @@ class IndikatorMutuService
 
     public function getTitle()
     {
-        return "IMP-UNIT";
+        return $this->typeIndikator;
     }
 
     public function getType()
     {
-        return "IMP-UNIT";
+        return $this->typeIndikator;
     }
 
     /**
@@ -123,9 +127,9 @@ class IndikatorMutuService
      *
      * @return  self
      */
-    public function setIndikator($indikator)
+    public function setSubIndikator($subIndikator)
     {
-        $this->indikator = $indikator;
+        $this->subIndikator = $subIndikator;
 
         return $this;
     }
@@ -162,7 +166,7 @@ class IndikatorMutuService
         $this->indikatorsList();
 
         $list = $this->indikatorList;
-        $indikator = $this->indikator;
+        $indikator = $this->subIndikator;
         $unit = $this->unit;
         $this->range = $unit;
 
@@ -198,5 +202,15 @@ class IndikatorMutuService
         $this->month = $month;
 
         return $this;
+    }
+
+    /**
+     * Get the value of nameFile
+     */
+    public function getNameFile()
+    {
+        $explode = explode("-", $this->getType());
+
+        return count($explode) > 1 ? $explode[0] . $explode[1] : $explode[0];
     }
 }

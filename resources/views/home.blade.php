@@ -27,7 +27,7 @@
                                         <div class="col-md-2 mb-1 pr-0">
                                             <label for="filter_year">Tahun</label>
                                             <select name="filter_year" id="filter_year" class="form-control">
-                                                <option value="">Pilih Tahun</option>
+                                                <option value="">Pilih Data</option>
                                                 @php
                                                     $year = date('Y');
                                                     $min = $year - 60;
@@ -49,7 +49,7 @@
                                     <div class="col-md-2 mb-1 pr-0">
                                         <label for="filter_month">Bulan</label>
                                         <select name="filter_month" id="filter_month" class="form-control">
-                                            <option value="">Pilih Bulan</option>
+                                            <option value="">Pilih Data</option>
                                             @php
                                                 $maxMonth = 12;
                                             @endphp
@@ -66,7 +66,7 @@
                                     <div class="col-md-2 mb-1 pr-0">
                                         <label for="filter_infeksi">Jenis Infeksi</label>
                                         <select name="filter_infeksi" id="filter_infeksi" class="form-control">
-                                            <option value="">Pilih Jenis Infeksi</option>
+                                            <option value="">Pilih Data</option>
                                             @php
                                                 $jenisInfeksi = ['IDO', 'PLEBITIS', 'ISK'];
                                             @endphp

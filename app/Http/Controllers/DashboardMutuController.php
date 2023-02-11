@@ -9,6 +9,7 @@ use App\Services\FileService;
 use App\Services\GoogleSheetService;
 use App\Services\ImpRsMutuService;
 use App\Services\ImpUnitMutuService;
+use App\Services\IndikatorMutuService;
 use App\Services\InmMutuService;
 use App\Services\MutuService;
 use Illuminate\Http\Request;
@@ -31,16 +32,19 @@ class DashboardMutuController extends Controller
         try {
             $params = $request->validated();
 
-            $inm = self::filters($params['filter_indikator']);
+            $inm = new IndikatorMutuService($params['filter_indikator'], $params['filter_year']);
 
             $labels = $inm->label()->readCollection()->flatten();
-            $values = $inm->setIndikator($params["filter_sub_indikator"])
+            $values = $inm->setSubIndikator($params["filter_sub_indikator"])
                 ->setUnit($params["filter_unit"])
                 ->val()
                 ->readCollection()
                 ->flatten();
+            $values->transform(function ($item) {
+                return intval($item);
+            });
 
-            $title = $inm->getTitle() . " Unit " . $inm->getUnit();
+            $title = $inm->getTitle() . " " . $inm->getUnit();
             $chart = (new DashboardMutuService())
                 ->setTitle($title)
                 ->setLabel($labels)
@@ -62,12 +66,14 @@ class DashboardMutuController extends Controller
     {
         try {
 
-            $object = self::filters(request()->get('indikator'));
-            $subIndikator = $object
+            $indikator = (new IndikatorMutuService(
+                request()->get('filter_indikator'),
+                request()->get('filter_year')
+            ))
                 ->setMonth(request()->get('filter_month'))
-                ->setYear(request()->get('filter_year'))
-                ->indikatorsList()
-                ->subIndikatorsList();
+                ->indikatorsList();
+
+            $subIndikator = $indikator->subIndikatorsList();
 
             return new ApiResource([
                 'status' => Response::HTTP_OK,
@@ -82,14 +88,17 @@ class DashboardMutuController extends Controller
     public function getUnit()
     {
         try {
+            $subIndikator = request()->get('filter_sub_indikator');
 
-            $subIndikator = request()->get('subIndikator');
-            $object = self::filters(request()->get('indikator'));
-            $units = $object
+            $indikator = (new IndikatorMutuService(
+                request()->get('filter_indikator'),
+                request()->get('filter_year')
+            ))
                 ->setMonth(request()->get('filter_month'))
                 ->setYear(request()->get('filter_year'))
-                ->indikatorsList()
-                ->units($subIndikator);
+                ->indikatorsList();
+
+            $units = $indikator->units($subIndikator);
 
             return new ApiResource([
                 'status' => Response::HTTP_OK,
@@ -99,26 +108,5 @@ class DashboardMutuController extends Controller
         } catch (\Throwable $th) {
             return response()->json($th->getMessage());
         }
-    }
-
-    public static function filters($indikator)
-    {
-        $object = null;
-        switch ($indikator) {
-
-            case 'IMP-RS':
-                $object = new ImpRsMutuService();
-                break;
-
-            case 'IMP-UNIT':
-                $object = new ImpUnitMutuService();
-                break;
-
-            default:
-                $object = new InmMutuService();
-                break;
-        }
-
-        return $object;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\FileService;
+use App\Services\IndikatorMutuService;
 use App\Services\MutuService;
 use Illuminate\Http\Request;
 
@@ -19,7 +20,7 @@ class GenerateFileController extends Controller
             $type = $request->filter_indikator;
 
             $fileService = new MutuService(
-                DashboardMutuController::filters($type)
+                new IndikatorMutuService($request->filter_indikator, $request->filter_year)
             );
 
             $fileService
@@ -30,9 +31,13 @@ class GenerateFileController extends Controller
                 ->indikatorWithUnit()
                 ->saveToDisk(strtolower($type)); // Generate file json
 
-            return \redirect()->route('mutu.generate.index')->with(['success' => 'Berhasil digenerate']);
+            return redirect()
+                ->route('mutu.generate.index')
+                ->with(['success' => 'Berhasil digenerate']);
         } catch (\Throwable $th) {
-            return \redirect()->back()->with(['error' => $th->getMessage()]);
+            return redirect()
+                ->back()
+                ->with(['error' => $th->getMessage()]);
         }
     }
 }
