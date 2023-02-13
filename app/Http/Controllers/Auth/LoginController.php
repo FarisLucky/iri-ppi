@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -42,10 +43,15 @@ class LoginController extends Controller
 
     protected function attemptLogin(Request $request)
     {
+        // dd($request->all());
         try {
-            return User::auth(
+            $user = Auth::attempt(
                 $this->credentials($request)
             );
+            dd($user);
+            // return User::auth(
+            //     $this->credentials($request)
+            // );
         } catch (\Throwable $th) {
             return redirect()->route('login')->with(["error" => $th->getMessage()]);
         }

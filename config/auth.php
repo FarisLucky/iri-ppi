@@ -46,6 +46,11 @@ return [
             'provider' => 'users',
             'hash' => false,
         ],
+        'custom' => [
+            'driver' => 'json',
+            'provider' => 'document',
+            'hash' => false,
+        ],
     ],
 
     /*
@@ -71,10 +76,9 @@ return [
             'model' => App\Models\User::class,
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'users' => [
+            'driver' => 'document',
+        ],
     ],
 
     /*

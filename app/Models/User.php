@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\DocumentCollection;
 use Exception;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,10 +10,21 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 
-class User extends Authenticatable
+class User extends AuthenticatableContract
 {
-    use HasFactory, Notifiable;
+    // use HasFactory, Notifiable;
+
+    private $conn;
+
+    private $username;
+    private $password;
+
+    public function __construct(DocumentCollection $conn)
+    {
+        $this->conn = $conn;
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -44,27 +56,96 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public static function authFile()
+    // public static function authFile()
+    // {
+    //     $file = Storage::disk('public')->get('users/users.json');
+    //     return json_decode($file, true);
+    // }
+
+    // public static function auth($params)
+    // {
+    //     $users = self::authFile();
+
+    //     $email = collect($users)->filter(function ($user) use ($params) {
+    //         return $user["email"] == $params['email'];
+    //     })->shift();
+
+    //     if (is_null($email)) {
+    //         throw new Exception("EMAIL ATAU PASSWORD TIDAK DITEMUKAN");
+    //     }
+    //     if (Hash::check($params["password"], $email["password"])) {
+    //         dd($email);
+    //         return true;
+    //     }
+
+    //     return false;
+    // }
+
+    public function fetchUserByCredentials(array $credentials)
     {
-        $file = Storage::disk('public')->get('users/users.json');
-        return json_decode($file, true);
+        $user = $this->conn->find($credentials);
+        if (!is_null($user)) {
+            $this->username = $user['username'];
+            $this->password = $user['password'];
+        }
+        return $user;
     }
 
-    public static function auth($params)
+    /**
+     * Get the name of the unique identifier for the user.
+     *
+     * @return string
+     */
+    public function getAuthIdentifierName()
     {
-        $users = self::authFile();
+        return "username";
+    }
 
-        $email = collect($users)->filter(function ($user) use ($params) {
-            return $user["email"] == $params['email'];
-        })->shift();
+    /**
+     * Get the unique identifier for the user.
+     *
+     * @return mixed
+     */
+    public function getAuthIdentifier()
+    {
+        return $this->{$this->getAuthIdentifierName()};
+    }
 
-        if (is_null($email)) {
-            throw new Exception("EMAIL ATAU PASSWORD TIDAK DITEMUKAN");
-        }
-        if (Hash::check($params["password"], $email["password"])) {
-            return true;
-        }
+    /**
+     * Get the password for the user.
+     *
+     * @return string
+     */
+    public function getAuthPassword()
+    {
+        return $this->password;
+    }
 
-        return false;
+    /**
+     * Get the token value for the "remember me" session.
+     *
+     * @return string
+     */
+    public function getRememberToken()
+    {
+    }
+
+    /**
+     * Set the token value for the "remember me" session.
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setRememberToken($value)
+    {
+    }
+
+    /**
+     * Get the column name for the "remember me" token.
+     *
+     * @return string
+     */
+    public function getRememberTokenName()
+    {
     }
 }

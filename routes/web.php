@@ -22,28 +22,50 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
-Route::get('/', [DashboardInsidenController::class, 'index'])->name('home');
+/**
+ * PERLU LOGIN
+ */
+Route::middleware("auth")->group(function () {
 
-// Insiden Route
-Route::post('insiden/dashboard', [DashboardInsidenController::class, 'showChart'])->name('insiden.dashboard');
-Route::get('insiden/data', [InsidenController::class, 'data'])->name('insiden.data');
-Route::get('insiden', [InsidenController::class, 'index'])->name('insiden.index');
-Route::get('insiden/{id}', [InsidenController::class, 'edit'])->name('insiden.edit');
-Route::put('insiden/{id?}', [InsidenController::class, 'update'])->name('insiden.update');
-Route::post('insiden/verif', [InsidenController::class, 'verif'])->name('insiden.verif');
-Route::delete('insiden/{id}', [InsidenController::class, 'destroy'])->name('insiden.destroy');
+    Route::get('/', [DashboardInsidenController::class, 'index'])->name('home');
 
-// History Route
-Route::get('history/insiden-view/data', [InsidenHistoryController::class, 'data'])->name('insiden.history.data');
-Route::get('history/insiden-view', [InsidenHistoryController::class, 'index'])->name('insiden.history.index');
+    /**
+     *
+     * Inside Route
+     *
+     */
+    Route::post('insiden/dashboard', [DashboardInsidenController::class, 'showChart'])->name('insiden.dashboard');
+    Route::get('insiden/data', [InsidenController::class, 'data'])->name('insiden.data');
+    Route::get('insiden', [InsidenController::class, 'index'])->name('insiden.index');
+    Route::get('insiden/{id}', [InsidenController::class, 'edit'])->name('insiden.edit');
+    Route::put('insiden/{id?}', [InsidenController::class, 'update'])->name('insiden.update');
+    Route::post('insiden/verif', [InsidenController::class, 'verif'])->name('insiden.verif');
+    Route::delete('insiden/{id}', [InsidenController::class, 'destroy'])->name('insiden.destroy');
 
-// Mutu
-Route::get('mutu/dashboard', [DashboardMutuController::class, 'index'])->name('mutu.dashboard');
-Route::post('mutu/filter/dashboard', [DashboardMutuController::class, 'showChart'])->name('mutu.filter.dashboard');
+    /**
+     *
+     * History Route
+     *
+     */
+    Route::get('history/insiden-view/data', [InsidenHistoryController::class, 'data'])->name('insiden.history.data');
+    Route::get('history/insiden-view', [InsidenHistoryController::class, 'index'])->name('insiden.history.index');
 
-// Mutu Process
-Route::get('mutu/baca/', [DashboardMutuController::class, 'baca'])->name('mutu.baca');
-Route::get('indikator/sub/', [DashboardMutuController::class, 'getSubIndikator'])->name('mutu.indikator.subIndikator');
-Route::get('indikator/unit/', [DashboardMutuController::class, 'getUnit'])->name('mutu.indikator.subIndikator.unit');
-Route::get('generate/mutu/', [GenerateFileController::class, 'index'])->name('mutu.generate.index');
-Route::post('generate/mutu/', [GenerateFileController::class, 'generate'])->name('mutu.generate.file');
+    /**
+     *
+     * Mutu Route
+     *
+     */
+    Route::get('mutu/dashboard', [DashboardMutuController::class, 'index'])->name('mutu.dashboard');
+    Route::post('mutu/filter/dashboard', [DashboardMutuController::class, 'showChart'])->name('mutu.filter.dashboard');
+
+    /**
+     *
+     * Mutu Process Route
+     *
+     */
+    Route::get('mutu/baca/', [DashboardMutuController::class, 'baca'])->name('mutu.baca');
+    Route::get('indikator/sub/', [DashboardMutuController::class, 'getSubIndikator'])->name('mutu.indikator.subIndikator');
+    Route::get('indikator/unit/', [DashboardMutuController::class, 'getUnit'])->name('mutu.indikator.subIndikator.unit');
+    Route::get('generate/mutu/', [GenerateFileController::class, 'index'])->name('mutu.generate.index');
+    Route::post('generate/mutu/', [GenerateFileController::class, 'generate'])->name('mutu.generate.file');
+});
