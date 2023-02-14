@@ -12,14 +12,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 
-class User extends AuthenticatableContract
+class User implements AuthenticatableContract
 {
     // use HasFactory, Notifiable;
 
     private $conn;
 
-    private $username;
-    private $password;
+    private $id, $email, $password;
 
     public function __construct(DocumentCollection $conn)
     {
@@ -84,11 +83,28 @@ class User extends AuthenticatableContract
     public function fetchUserByCredentials(array $credentials)
     {
         $user = $this->conn->find($credentials);
+
         if (!is_null($user)) {
-            $this->username = $user['username'];
+            $this->id = $user['id'];
+            $this->email = $user['email'];
             $this->password = $user['password'];
         }
-        return $user;
+        return $this;
+    }
+
+    public function fetchUserById($identifier)
+    {
+        $criteria = [
+            "email" => $identifier
+        ];
+        $user = $this->conn->find($criteria);
+
+        if (!is_null($user)) {
+            $this->id = $user['id'];
+            $this->email = $user['email'];
+            $this->password = $user['password'];
+        }
+        return $this;
     }
 
     /**
@@ -98,7 +114,7 @@ class User extends AuthenticatableContract
      */
     public function getAuthIdentifierName()
     {
-        return "username";
+        return "email";
     }
 
     /**

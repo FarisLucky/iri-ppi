@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'web',
+        'guard' => 'custom',
         'passwords' => 'users',
     ],
 
@@ -47,9 +47,8 @@ return [
             'hash' => false,
         ],
         'custom' => [
-            'driver' => 'json',
+            'driver' => 'session',
             'provider' => 'document',
-            'hash' => false,
         ],
     ],
 
@@ -76,7 +75,7 @@ return [
             'model' => App\Models\User::class,
         ],
 
-        'users' => [
+        'document' => [
             'driver' => 'document',
         ],
     ],

@@ -2,7 +2,13 @@
 
 namespace App\Providers;
 
+use App\Extensions\DocumentUserProvider;
+use App\Models\User;
+use App\Services\Auth\DocumentGuard;
+use App\Services\Contracts\DocumentServiceInterface;
+use App\Services\DocumentCollection;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
@@ -25,6 +31,32 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        /**
+         * Custom Auth Provider use json file
+         */
+
+        $this->app->bind(DocumentCollection::class, function ($app) {
+            $file = storage_path('public/users/users.json');
+            return new DocumentCollection($file);
+        });
+
+        $this->app->bind(User::class, function ($app) {
+            return new User($app->make(DocumentCollection::class));
+        });
+
+        /**
+         * Add Custom Guard Provider
+         */
+        Auth::provider('document', function ($app, array $config) {
+            return new DocumentUserProvider($app->make(User::class));
+        });
+    }
+
+    public function register()
+    {
+        $this->app->bind(
+            DocumentServiceInterface::class,
+            DocumentCollection::class
+        );
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\GenerateFileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InsidenController;
 use App\Http\Controllers\InsidenHistoryController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -20,14 +21,25 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Auth::routes();
+Auth::routes([
+    "register" => false,
+    "password.confirm" => false,
+    "password.email" => false,
+    "password.reset" => false,
+    "password.update" => false,
+    "password.request" => false,
+]);
 
 /**
  * PERLU LOGIN
  */
-Route::middleware("auth")->group(function () {
-
+Route::middleware(["auth"])->group(function () {
     Route::get('/', [DashboardInsidenController::class, 'index'])->name('home');
+    Route::get('/test', function (Request $request) {
+        dd("tetr");
+        dd(Auth::user());
+    });
+
 
     /**
      *

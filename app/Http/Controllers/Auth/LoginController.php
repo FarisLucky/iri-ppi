@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
@@ -43,17 +45,20 @@ class LoginController extends Controller
 
     protected function attemptLogin(Request $request)
     {
-        // dd($request->all());
         try {
-            $user = Auth::attempt(
+            $check = $this->guard()->attempt(
                 $this->credentials($request)
             );
-            dd($user);
-            // return User::auth(
-            //     $this->credentials($request)
-            // );
+            // dd($check);
+            return $check;
         } catch (\Throwable $th) {
-            return redirect()->route('login')->with(["error" => $th->getMessage()]);
+            return dd($th->getMessage());
         }
+    }
+
+    protected function authenticated(Request $request, $user)
+    {
+        // dd("test");
+        // dd($request->user());
     }
 }

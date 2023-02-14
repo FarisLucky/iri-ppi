@@ -28,7 +28,7 @@
 
 <body>
     {{-- {{ dd(Auth::user()) }} --}}
-    <main class="d-flex w-100" style="background-color: #84dcc6; height: 94%">
+    <main class="d-flex w-100" style="background-color: #003f88; height: 94%">
         @if (session()->get('error'))
             <div class="alert alert-danger py-2 justify-content-center">
                 <h3>{{ session()->get('error') }}</h3>

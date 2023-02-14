@@ -16,7 +16,7 @@ class DocumentCollection implements DocumentServiceInterface
 
     public function find($criteria)
     {
-        $users = $this->path;
+        $users = $this->data();
 
         $email = collect($users)->filter(function ($user) use ($criteria) {
             return $user["email"] == $criteria['email'];
