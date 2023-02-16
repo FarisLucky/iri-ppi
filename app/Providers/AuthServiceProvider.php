@@ -50,6 +50,20 @@ class AuthServiceProvider extends ServiceProvider
         Auth::provider('document', function ($app, array $config) {
             return new DocumentUserProvider($app->make(User::class));
         });
+
+        Gate::define('mutu', function ($user) {
+            return $user->type == "mutu";
+        });
+
+        Gate::define('ppi', function ($user) {
+            return $user->type == "ppi";
+        });
+
+        Gate::define('supersu', function ($user) {
+            return $user->type == "supersu";
+        });
+
+        // dd(Gate::abilities());
     }
 
     public function register()

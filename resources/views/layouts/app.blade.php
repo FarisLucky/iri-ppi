@@ -36,19 +36,34 @@
         <nav id="sidebar" class="sidebar">
             <div class="sidebar-content js-simplebar">
                 <a class="sidebar-brand" href="{{ route('home') }}">
-                    <span class="align-middle">Dashboard KMKP</span>
+                    <span class="align-middle">Dashboard SIM</span>
                 </a>
 
                 <ul class="sidebar-nav">
                     <li class="sidebar-header">
                         Menu
                     </li>
-
-                    <li class="sidebar-item {{ in_array(request()->route()->getName(),['home'])? 'active': '' }}">
-                        <a class="sidebar-link" href="{{ route('home') }}">
-                            <i class="align-middle" data-feather="sliders"></i> <span
-                                class="align-middle">Dashboard</span>
+                    <li
+                        class="sidebar-item {{ in_array(request()->route()->getName(),['insiden.dashboard', 'mutu.dashboard'])? 'active': '' }}">
+                        <a data-bs-target="#mutu" data-bs-toggle="collapse" class="sidebar-link collapsed">
+                            <i class="align-middle fas fa-person-booth"></i>
+                            <span class="align-middle">Dashboard</span>
                         </a>
+                        <ul id="mutu"
+                            class="sidebar-dropdown list-unstyled collapse
+                        {{ in_array(request()->route()->getName(),['insiden.dashboard', 'mutu.dashboard'])? 'show': '' }}"
+                            data-bs-parent="#sidebar">
+                            @can('ppi')
+                                <li class="sidebar-item {{ request()->routeIs('insiden.dashboard') ? 'active' : '' }}"><a
+                                        class="sidebar-link" href="{{ route('insiden.dashboard') }}">PPI</a>
+                                </li>
+                            @endcan
+                            @can('mutu')
+                                <li class="sidebar-item {{ request()->routeIs('mutu.dashboard') ? 'active' : '' }}"><a
+                                        class="sidebar-link" href="{{ route('mutu.dashboard') }}">MUTU</a>
+                                </li>
+                            @endcan
+                        </ul>
                     </li>
 
                     {{-- <li
@@ -57,47 +72,36 @@
                             <i class="align-middle" data-feather="user"></i> <span class="align-middle">Insiden</span>
                         </a>
                     </li> --}}
-                    <li
-                        class="sidebar-item {{ in_array(request()->route()->getName(),['insiden.index', 'insiden.history.index'])? 'active': '' }}">
-                        <a data-bs-target="#insiden" data-bs-toggle="collapse" class="sidebar-link collapsed">
-                            <i class="align-middle" data-feather="layout"></i>
-                            <span class="align-middle">Insiden</span>
-                        </a>
-                        <ul id="insiden"
-                            class="sidebar-dropdown list-unstyled collapse
+                    @can('ppi')
+                        <li
+                            class="sidebar-item {{ in_array(request()->route()->getName(),['insiden.index', 'insiden.history.index'])? 'active': '' }}">
+                            <a data-bs-target="#insiden" data-bs-toggle="collapse" class="sidebar-link collapsed">
+                                <i class="align-middle" data-feather="layout"></i>
+                                <span class="align-middle">Insiden</span>
+                            </a>
+                            <ul id="insiden"
+                                class="sidebar-dropdown list-unstyled collapse
                         {{ in_array(request()->route()->getName(),['insiden.index', 'insiden.history.index'])? 'show': '' }}"
-                            data-bs-parent="#sidebar">
-                            <li class="sidebar-item {{ request()->routeIs('insiden.index') ? 'active' : '' }}"><a
-                                    class="sidebar-link" href="{{ route('insiden.index') }}">List</a>
-                            </li>
-                            <li class="sidebar-item {{ request()->routeIs('insiden.history.index') ? 'active' : '' }}">
-                                <a class="sidebar-link" href="{{ route('insiden.history.index') }}">History</a>
-                            </li>
+                                data-bs-parent="#sidebar">
+                                <li class="sidebar-item {{ request()->routeIs('insiden.index') ? 'active' : '' }}"><a
+                                        class="sidebar-link" href="{{ route('insiden.index') }}">List</a>
+                                </li>
+                                <li class="sidebar-item {{ request()->routeIs('insiden.history.index') ? 'active' : '' }}">
+                                    <a class="sidebar-link" href="{{ route('insiden.history.index') }}">History</a>
+                                </li>
 
-                        </ul>
-                    </li>
-                    <li
-                        class="sidebar-item {{ in_array(request()->route()->getName(),['mutu.dashboard'])? 'active': '' }}">
-                        <a data-bs-target="#mutu" data-bs-toggle="collapse" class="sidebar-link collapsed">
-                            <i class="align-middle fas fa-person-booth"></i>
-                            <span class="align-middle">Mutu</span>
-                        </a>
-                        <ul id="mutu"
-                            class="sidebar-dropdown list-unstyled collapse
-                        {{ in_array(request()->route()->getName(),['mutu.dashboard'])? 'show': '' }}"
-                            data-bs-parent="#sidebar">
-                            <li class="sidebar-item {{ request()->routeIs('mutu.dashboard') ? 'active' : '' }}"><a
-                                    class="sidebar-link" href="{{ route('mutu.dashboard') }}">Dashboard</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li
-                        class="sidebar-item {{ in_array(request()->route()->getName(),['mutu.generate.index', 'mutu.generate.file'])? 'active': '' }}">
-                        <a class="sidebar-link" href="{{ route('mutu.generate.index') }}">
-                            <i class="align-middle" data-feather="sliders"></i> <span class="align-middle">Generate
-                                File</span>
-                        </a>
-                    </li>
+                            </ul>
+                        </li>
+                    @endcan
+                    @can('supersu')
+                        <li
+                            class="sidebar-item {{ in_array(request()->route()->getName(),['mutu.generate.index', 'mutu.generate.file'])? 'active': '' }}">
+                            <a class="sidebar-link" href="{{ route('mutu.generate.index') }}">
+                                <i class="align-middle" data-feather="sliders"></i> <span class="align-middle">Generate
+                                    File</span>
+                            </a>
+                        </li>
+                    @endcan
                 </ul>
             </div>
         </nav>

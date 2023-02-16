@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class HomeController extends Controller
 {
@@ -20,8 +21,11 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $params = [];
-        return view('home', compact('params'));
+        if (Gate::allows('ppi')) {
+            return (new DashboardInsidenController())->index();
+        } else if (Gate::allows('mutu')) {
+            return (new DashboardMutuController())->index();
+        }
     }
 
     public function showChart(Request $request)

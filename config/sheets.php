@@ -8,6 +8,9 @@ return [
         'IMP-RS' => [
             "2023" => "1kvmjxyfGhMCNMnEzzCoG0K5c-5mx-Lxky346y3CgJ0k"
         ],
+        'IMP-RS-SKP' => [
+            "2023" => "1kvmjxyfGhMCNMnEzzCoG0K5c-5mx-Lxky346y3CgJ0k"
+        ],
         'IMP-UNIT' => [
             "2023" => "1C5H7xpz_pVlYaLHqb6Wdw0AY23Vy847P7kBG17-yN3w"
         ],

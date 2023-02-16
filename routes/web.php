@@ -8,6 +8,7 @@ use App\Http\Controllers\InsidenController;
 use App\Http\Controllers\InsidenHistoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,8 +34,12 @@ Auth::routes([
 /**
  * PERLU LOGIN
  */
+// dd(Gate::allows('ppi'));
+
+
 Route::middleware(["auth"])->group(function () {
-    Route::get('/', [DashboardInsidenController::class, 'index'])->name('home');
+    Route::get('/', [HomeController::class, 'index'])->name('home');
+
     Route::get('/test', function (Request $request) {
         dd("tetr");
         dd(Auth::user());
