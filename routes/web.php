@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InsidenController;
 use App\Http\Controllers\InsidenHistoryController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -51,6 +52,7 @@ Route::middleware(["auth"])->group(function () {
      * Inside Route
      *
      */
+    Route::get('insiden/dashboard', [DashboardInsidenController::class, 'index'])->name('insiden.dashboard.index');
     Route::post('insiden/dashboard', [DashboardInsidenController::class, 'showChart'])->name('insiden.dashboard');
     Route::get('insiden/data', [InsidenController::class, 'data'])->name('insiden.data');
     Route::get('insiden', [InsidenController::class, 'index'])->name('insiden.index');
@@ -85,4 +87,16 @@ Route::middleware(["auth"])->group(function () {
     Route::get('indikator/unit/', [DashboardMutuController::class, 'getUnit'])->name('mutu.indikator.subIndikator.unit');
     Route::get('generate/mutu/', [GenerateFileController::class, 'index'])->name('mutu.generate.index');
     Route::post('generate/mutu/', [GenerateFileController::class, 'generate'])->name('mutu.generate.file');
+});
+
+/**
+ * OPTIMIZE IN SHARED HOSTING
+ * TEST
+ */
+Route::get('/clear', function () {
+
+    Artisan::call('route:clear');
+    Artisan::call('config:clear');
+    Artisan::call('optimize:clear');
+    return "Config, cache, route, view Cleared!";
 });

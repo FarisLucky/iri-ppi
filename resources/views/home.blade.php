@@ -26,7 +26,7 @@
                                     <div class="row align-items-end">
                                         <div class="col-md-2 mb-1 pr-0">
                                             <label for="filter_year">Tahun</label>
-                                            <select name="filter_year" id="filter_year" class="form-control">
+                                            <select name="filter_year" id="filter_year" class="form-control" required>
                                                 <option value="">Pilih Data</option>
                                                 @php
                                                     $year = date('Y');
@@ -48,7 +48,7 @@
                                     </div>
                                     <div class="col-md-2 mb-1 pr-0">
                                         <label for="filter_month">Bulan</label>
-                                        <select name="filter_month" id="filter_month" class="form-control">
+                                        <select name="filter_month" id="filter_month" class="form-control" required>
                                             <option value="">Pilih Data</option>
                                             @php
                                                 $maxMonth = 12;
@@ -65,7 +65,7 @@
                                     </div>
                                     <div class="col-md-2 mb-1 pr-0">
                                         <label for="filter_infeksi">Jenis Infeksi</label>
-                                        <select name="filter_infeksi" id="filter_infeksi" class="form-control">
+                                        <select name="filter_infeksi" id="filter_infeksi" class="form-control" required>
                                             <option value="">Pilih Data</option>
                                             @php
                                                 $jenisInfeksi = ['IDO', 'PLEBITIS', 'ISK'];
@@ -92,17 +92,6 @@
         </div>
         <div class="col-md-12">
             <div class="row">
-                {{-- <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="border-bottom pb-2">Insiden Infeksi Bulan
-                                    <strong>{{ date('F - Y', strtotime(now())) }}</strong>
-                                </h4>
-                                <div id="pie_data" data-pie="{{ $infeksiPieChart }}"></div>
-                                <div id="chart_pie"></div>
-                            </div>
-                        </div>
-                    </div> --}}
                 <div class="col-md-12 {{ $showChart ? '' : 'd-none' }}">
                     <div class="card">
                         <div class="card-body">

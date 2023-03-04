@@ -44,21 +44,22 @@
                         Menu
                     </li>
                     <li
-                        class="sidebar-item {{ in_array(request()->route()->getName(),['insiden.dashboard', 'mutu.dashboard'])? 'active': '' }}">
+                        class="sidebar-item {{ in_array(request()->route()->getName(),['insiden.dashboard', 'insiden.dashboard.index', 'mutu.dashboard'])? 'active': '' }}">
                         <a data-bs-target="#mutu" data-bs-toggle="collapse" class="sidebar-link collapsed">
                             <i class="align-middle fas fa-person-booth"></i>
                             <span class="align-middle">Dashboard</span>
                         </a>
                         <ul id="mutu"
                             class="sidebar-dropdown list-unstyled collapse
-                        {{ in_array(request()->route()->getName(),['insiden.dashboard', 'mutu.dashboard'])? 'show': '' }}"
+                        {{ in_array(request()->route()->getName(),['insiden.dashboard', 'mutu.dashboard', 'insiden.dashboard.index'])? 'show': '' }}"
                             data-bs-parent="#sidebar">
-                            @can('ppi')
-                                <li class="sidebar-item {{ request()->routeIs('insiden.dashboard') ? 'active' : '' }}"><a
-                                        class="sidebar-link" href="{{ route('insiden.dashboard') }}">PPI</a>
+                            @canany(['ppi', 'supersu'])
+                                <li
+                                    class="sidebar-item {{ request()->routeIs('insiden.dashboard.index') ? 'active' : '' }}">
+                                    <a class="sidebar-link" href="{{ route('insiden.dashboard.index') }}">PPI</a>
                                 </li>
                             @endcan
-                            @can('mutu')
+                            @canany(['mutu', 'supersu'])
                                 <li class="sidebar-item {{ request()->routeIs('mutu.dashboard') ? 'active' : '' }}"><a
                                         class="sidebar-link" href="{{ route('mutu.dashboard') }}">MUTU</a>
                                 </li>
@@ -72,7 +73,7 @@
                             <i class="align-middle" data-feather="user"></i> <span class="align-middle">Insiden</span>
                         </a>
                     </li> --}}
-                    @can('ppi')
+                    @canany(['ppi', 'supersu'])
                         <li
                             class="sidebar-item {{ in_array(request()->route()->getName(),['insiden.index', 'insiden.history.index'])? 'active': '' }}">
                             <a data-bs-target="#insiden" data-bs-toggle="collapse" class="sidebar-link collapsed">
@@ -121,20 +122,11 @@
 
                             <a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#"
                                 data-toggle="dropdown">
-                                <img src="https://ui-avatars.com/api/?name=Salman" class="avatar img-fluid rounded mr-1"
-                                    alt="Charles Hall" /> <span class="text-dark">Salman</span>
+                                <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}"
+                                    class="avatar img-fluid rounded mr-1" alt="Charles Hall" /> <span
+                                    class="text-dark">{{ auth()->user()->name }}</span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right">
-                                <a class="dropdown-item" href="pages-profile.html"><i class="align-middle mr-1"
-                                        data-feather="user"></i> Profile</a>
-                                <a class="dropdown-item" href="#"><i class="align-middle mr-1"
-                                        data-feather="pie-chart"></i> Analytics</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="pages-settings.html"><i class="align-middle mr-1"
-                                        data-feather="settings"></i> Settings & Privacy</a>
-                                <a class="dropdown-item" href="#"><i class="align-middle mr-1"
-                                        data-feather="help-circle"></i> Help Center</a>
-                                <div class="dropdown-divider"></div>
                                 <form action="{{ route('logout') }}" method="post">
                                     @csrf
                                     @method('POST')

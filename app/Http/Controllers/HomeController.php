@@ -21,10 +21,10 @@ class HomeController extends Controller
      */
     public function index()
     {
-        if (Gate::allows('ppi')) {
-            return (new DashboardInsidenController())->index();
+        if (Gate::allows('ppi') || Gate::allows('supersu')) {
+            return redirect()->route('insiden.dashboard.index');
         } else if (Gate::allows('mutu')) {
-            return (new DashboardMutuController())->index();
+            return redirect()->route('mutu.dashboard');
         }
     }
 

@@ -143,6 +143,7 @@
 @push('javascript')
 <script src="{{ asset('admin/dist/apexcharts/apexcharts.min.js') }}"></script>
 <script type="text/javascript">
+    let dataLabels = {};
     $(function() {
         hideLoader()
         $('#filter_indikator').on('change', function(e) {
@@ -245,6 +246,7 @@
     let title = data.title
     let label = data.label
     let seriesData = data.val
+    let showLabel = dataLabels
 
     var options = {
         series: [{
@@ -254,7 +256,7 @@
         }],
         chart: {
             height: 350,
-            type: 'bar',
+            type: 'line',
             zoom: {
                 enabled: true
             }
@@ -267,12 +269,7 @@
             },
         },
         colors: ["#118ab2"],
-        dataLabels: {
-            enabled: true,
-            formatter: (val) => {
-                return val + " %";
-            }
-        },
+        dataLabels: showLabel,
         stroke: {
             curve: 'straight'
         },

@@ -18,7 +18,7 @@ class User implements AuthenticatableContract
 
     private $conn;
 
-    public $id, $email, $password, $type;
+    public $id, $name, $email, $password, $type;
 
     public function __construct(DocumentCollection $conn)
     {
@@ -86,6 +86,7 @@ class User implements AuthenticatableContract
 
         if (!is_null($user)) {
             $this->id = $user['id'];
+            $this->name = $user['name'];
             $this->email = $user['email'];
             $this->type = $user['type'];
             $this->password = $user['password'];
@@ -102,6 +103,7 @@ class User implements AuthenticatableContract
 
         if (!is_null($user)) {
             $this->id = $user['id'];
+            $this->name = $user['name'];
             $this->email = $user['email'];
             $this->type = $user['type'];
             $this->password = $user['password'];
