@@ -51,7 +51,7 @@
                         </a>
                         <ul id="mutu"
                             class="sidebar-dropdown list-unstyled collapse
-                        {{ in_array(request()->route()->getName(),['insiden.dashboard', 'mutu.dashboard', 'insiden.dashboard.index'])? 'show': '' }}"
+                        {{ in_array(request()->route()->getName(),['insiden.dashboard', 'mutu.dashboard', 'k3.dashboard', 'insiden.dashboard.index'])? 'show': '' }}"
                             data-bs-parent="#sidebar">
                             @canany(['ppi', 'supersu'])
                                 <li
@@ -62,6 +62,11 @@
                             @canany(['mutu', 'supersu'])
                                 <li class="sidebar-item {{ request()->routeIs('mutu.dashboard') ? 'active' : '' }}"><a
                                         class="sidebar-link" href="{{ route('mutu.dashboard') }}">MUTU</a>
+                                </li>
+                            @endcan
+                            @canany(['k3', 'supersu'])
+                                <li class="sidebar-item {{ request()->routeIs('k3.dashboard') ? 'active' : '' }}"><a
+                                        class="sidebar-link" href="{{ route('k3.dashboard') }}">K3</a>
                                 </li>
                             @endcan
                         </ul>
@@ -94,7 +99,7 @@
                             </ul>
                         </li>
                     @endcan
-                    @can('supersu')
+                    {{-- @can('supersu')
                         <li
                             class="sidebar-item {{ in_array(request()->route()->getName(),['mutu.generate.index', 'mutu.generate.file'])? 'active': '' }}">
                             <a class="sidebar-link" href="{{ route('mutu.generate.index') }}">
@@ -102,7 +107,7 @@
                                     File</span>
                             </a>
                         </li>
-                    @endcan
+                    @endcan --}}
                 </ul>
             </div>
         </nav>

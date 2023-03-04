@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardInsidenController;
+use App\Http\Controllers\DashboardK3Controller;
 use App\Http\Controllers\DashboardMutuController;
 use App\Http\Controllers\GenerateFileController;
 use App\Http\Controllers\HomeController;
@@ -87,6 +88,14 @@ Route::middleware(["auth"])->group(function () {
     Route::get('indikator/unit/', [DashboardMutuController::class, 'getUnit'])->name('mutu.indikator.subIndikator.unit');
     Route::get('generate/mutu/', [GenerateFileController::class, 'index'])->name('mutu.generate.index');
     Route::post('generate/mutu/', [GenerateFileController::class, 'generate'])->name('mutu.generate.file');
+
+    /**
+     *
+     * K3 Route
+     *
+     */
+    Route::get('dashboard/k3', [DashboardK3Controller::class, 'index'])->name('k3.dashboard');
+    // Route::post('k3/filter/dashboard', [DashboardK3Controller::class, 'showChart'])->name('k3.filter.dashboard');
 });
 
 /**

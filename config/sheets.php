@@ -38,5 +38,8 @@ return [
         10 => "Oktober",
         11 => "November",
         12 => "Desember",
+    ],
+    "k3rs" => [
+        "2022" => "1CUsPsc5t-SHBKO_iUAhIj1BhP4RQTIW8t9Qup0A8YA0"
     ]
 ];
