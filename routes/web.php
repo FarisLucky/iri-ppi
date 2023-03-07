@@ -95,7 +95,7 @@ Route::middleware(["auth"])->group(function () {
      *
      */
     Route::get('dashboard/k3', [DashboardK3Controller::class, 'index'])->name('k3.dashboard');
-    // Route::post('k3/filter/dashboard', [DashboardK3Controller::class, 'showChart'])->name('k3.filter.dashboard');
+    Route::post('dashboard/k3/filter', [DashboardK3Controller::class, 'showChart'])->name('k3.filter.dashboard');
 });
 
 /**

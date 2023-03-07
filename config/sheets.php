@@ -40,6 +40,7 @@ return [
         12 => "Desember",
     ],
     "k3rs" => [
+        "2023" => "1CUsPsc5t-SHBKO_iUAhIj1BhP4RQTIW8t9Qup0A8YA0",
         "2022" => "1CUsPsc5t-SHBKO_iUAhIj1BhP4RQTIW8t9Qup0A8YA0"
     ]
 ];

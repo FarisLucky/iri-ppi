@@ -11,13 +11,13 @@
                                 data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                                 Dashboard K3 RS Graha Sehat
                             </button>
-                            <a href="{{ route('mutu.dashboard') }}" class="cs-btn-accordion text-secondary">
+                            <a href="{{ route('k3.dashboard') }}" class="cs-btn-accordion text-secondary">
                                 <i class="fas fa-undo-alt"></i>
                             </a>
                         </h2>
                         @php
                             $showChart = isset($infeksiSplineChart) && $infeksiSplineChart != '';
-
+                            
                             function selected($name, array $options)
                             {
                                 return in_array($name, $options) ? 'selected' : '';
@@ -26,7 +26,7 @@
                         <div id="collapseOne" class="accordion-collapse collapse {{ $showChart ? '' : 'show' }}"
                             aria-labelledby="headingOne" data-bs-parent="#accordionFilter">
                             <div class="accordion-body">
-                                <form action="{{ route('mutu.filter.dashboard') }}" method="POST">
+                                <form action="{{ route('k3.filter.dashboard') }}" method="POST">
                                     @csrf
                                     <div class="row align-items-end">
                                         <div class="col-md-2 mb-1 pr-0">
@@ -36,13 +36,13 @@
                                                 @php
                                                     $year = date('Y');
                                                     $min = $year - 30;
-                                                    $max = $year;
+                                                    $max = $year - 1;
                                                 @endphp
                                                 @for ($y = $max; $y >= $min; $y--)
                                                     <option value="{{ $y }}"
                                                         {{ selected($y, [optional($params)['filter_year'], old('filter_year')]) }}>
                                                         {{ $y }}</option>
-                                                    @if ($y == '2023')
+                                                    @if ($y == '2022')
                                                     @break
                                                 @endif
                                             @endfor
@@ -78,7 +78,9 @@
                                         <select name="filter_indikator" id="filter_indikator" class="form-control"
                                             required>
                                             <option value="">Pilih Data</option>
-                                            <option value="Kejadian tertusuk jarum suntik">Kejadian Tertusuk Jarum
+                                            <option value="Kejadian tertusuk jarum suntik"
+                                                {{ selected('Kejadian tertusuk jarum suntik', [optional($params)['filter_indikator'], old('filter_month')]) }}>
+                                                Kejadian Tertusuk Jarum
                                             </option>
                                         </select>
                                         @error('filter_indikator')
@@ -96,13 +98,13 @@
             </div>
         </div>
         {{-- {{ dd($params) }} --}}
-        <div class="col-md-12 mt-2">
+        <div class="col-md-12 mt-2 {{ isset(optional($params)['filter_year']) ? 'show' : 'hide' }}">
             <div class="card">
                 <div class="card-body">
                     <h4 class="border-bottom pb-2">
-                        <strong>{{ optional(json_decode($chart, true))['title'] . ' (Januari' . optional($params)['filter_sub_indikator'] . ' )' }}</strong>
+                        <strong>{{ optional($params)['filter_indikator'] . ' (' . optional($params)['filter_month_name'] . ' )' }}</strong>
                         Tahun
-                        <strong>{{ now()->format('Y') }}</strong>
+                        <strong>{{ optional($params)['filter_year'] }}</strong>
                     </h4>
                     <div id="chart_data" data-chart="{{ $chart }}"></div>
                     <div id="chart"></div>

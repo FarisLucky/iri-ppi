@@ -48,7 +48,7 @@ class K3Service
     public function val()
     {
         $sheetName = "IMUK " . $this->month;
-        $this->range = "!E39:AI39";
+        $this->range = $sheetName . "!E39:AI39";
 
         return $this;
     }
@@ -94,5 +94,21 @@ class K3Service
         $this->month = $month;
 
         return $this;
+    }
+
+    /**
+     * Get the value of month
+     */
+    public function getMonth()
+    {
+        return $this->month;
+    }
+
+    /**
+     * Get the value of range
+     */
+    public function getRange()
+    {
+        return $this->range;
     }
 }

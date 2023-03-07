@@ -11,19 +11,24 @@ class DashboardK3Controller extends Controller
 {
     public function index()
     {
-        // $date = mktime(0, 0, 0, 12, 1, 2022);
+        $date = date('Y-m-d', mktime(0, 0, 0, 12, 1, 2022));
         // dd(Carbon::createFromTime($date)->format('d-m-Y'));
-        // $params = $this->getDataByDate();
+        $data = $this->getDataByDate($date);
+        $params = $data['params'];
+        $chart = $data['chart'];
 
         return view('k3.index', compact("params", "chart"));
     }
 
     public function showChart(Request $request)
     {
-        $date = Carbon::createFromFormat("Y-m-d", '2022-12-01');
+        $date = Carbon::createFromDate($request->filter_year, $request->filter_month, 1);
+
         $k3SheetService = new K3Service(
             $date->year
         );
+
+        // dd($date->monthName);
         $k3SheetService->setMonth(strtoupper($date->monthName));
 
         // Ambil data label
@@ -39,14 +44,20 @@ class DashboardK3Controller extends Controller
             return intval($k3);
         })->toArray();
 
-        $params = "";
+        $params = [
+            'filter_year' => $request->filter_year,
+            'filter_month' => $request->filter_month,
+            'filter_month_name' => $date->monthName,
+            'filter_indikator' => $request->filter_indikator,
+        ];
+
         $chart = collect([
             "title" => "K3 Kejadian Tertusuk Jarum",
             "label" => $labelK3,
             "data" => $dataK3,
         ])->toJson();
-        $params = "";
-        $chart = "";
+        // dd($k3SheetService->getRange());
+
         return view('k3.index', compact("params", "chart"));
     }
 
