@@ -19,7 +19,7 @@ class InsidenController extends Controller
             ->joinPasien()
             ->where(function ($query) {
                 $query->where('verified', 0)
-                    ->whereDate('ppi.TANGGAL', ">=", now()->format('Y-m-d'));
+                    ->whereDate('ppi.TANGGAL', ">=", date('Y-m-d', mktime(0, 0, 0, 1, 1, 2023)));
             });
 
         if (

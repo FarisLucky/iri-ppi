@@ -51,12 +51,11 @@
                         </a>
                         <ul id="mutu"
                             class="sidebar-dropdown list-unstyled collapse
-                        {{ in_array(request()->route()->getName(),['insiden.dashboard', 'mutu.dashboard', 'k3.dashboard', 'insiden.dashboard.index'])? 'show': '' }}"
+                        {{ in_array(request()->route()->getName(),['ppi.dashboard', 'mutu.dashboard', 'k3.dashboard', 'insiden.dashboard.index'])? 'show': '' }}"
                             data-bs-parent="#sidebar">
                             @canany(['ppi', 'supersu'])
-                                <li
-                                    class="sidebar-item {{ request()->routeIs('insiden.dashboard.index') ? 'active' : '' }}">
-                                    <a class="sidebar-link" href="{{ route('insiden.dashboard.index') }}">PPI</a>
+                                <li class="sidebar-item {{ request()->routeIs('ppi.dashboard') ? 'active' : '' }}">
+                                    <a class="sidebar-link" href="{{ route('ppi.dashboard') }}">PPI</a>
                                 </li>
                             @endcan
                             @canany(['mutu', 'supersu'])

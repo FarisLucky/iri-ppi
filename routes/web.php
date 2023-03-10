@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardInsidenController;
 use App\Http\Controllers\DashboardK3Controller;
 use App\Http\Controllers\DashboardMutuController;
+use App\Http\Controllers\DashboardPpiController;
 use App\Http\Controllers\GenerateFileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InsidenController;
@@ -96,6 +97,14 @@ Route::middleware(["auth"])->group(function () {
      */
     Route::get('dashboard/k3', [DashboardK3Controller::class, 'index'])->name('k3.dashboard');
     Route::post('dashboard/k3/filter', [DashboardK3Controller::class, 'showChart'])->name('k3.filter.dashboard');
+
+    /**
+     *
+     * PPI Route
+     *
+     */
+    Route::get('dashboard/ppi', [DashboardPpiController::class, 'index'])->name('ppi.dashboard');
+    Route::post('dashboard/ppi/filter', [DashboardPpiController::class, 'showChart'])->name('ppi.filter.dashboard');
 });
 
 /**

@@ -22,7 +22,7 @@ class HomeController extends Controller
     public function index()
     {
         if (Gate::allows('ppi') || Gate::allows('supersu')) {
-            return redirect()->route('insiden.dashboard.index');
+            return redirect()->route('ppi.dashboard');
         } else if (Gate::allows('mutu')) {
             return redirect()->route('mutu.dashboard');
         }
